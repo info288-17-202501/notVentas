@@ -1,8 +1,21 @@
 require('dotenv').config()
 const express = require('express');
-const app = express();
+const LoggerMiddleware = require('./middleware/logger');
+const ErrorHandler = require('./middleware/errorHandler')
 
+
+const app = express();
+app.use(LoggerMiddleware);
+app.use(ErrorHandler)
 const PORT = process.env.PORT || 3000;
+
+
+
+
+app.get('/error', (req, res, next) => {
+    next(new Error('Error intencional'));
+})
+
 
 app.get('/',(req, res) => {
     res.send(`
@@ -12,6 +25,6 @@ app.get('/',(req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`app run in port: ${PORT}`);
+    console.log(`app runing in: http://localhost:${PORT}`);
 
 });
