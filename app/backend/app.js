@@ -10,6 +10,13 @@ const ErrorHandler = require('./middleware/errorHandler');
 const { PrismaClient } = require('./generated/prisma');
 const prisma = new PrismaClient();
 
+const authenticateToken = require('./middleware/auth')
+
+
+app.get('/protected-route', authenticateToken, (req, res) =>{
+    res.send('Esta es una ruta protegida');
+})
+
 app.use(LoggerMiddleware);
 app.use(ErrorHandler)
 const PORT = process.env.PORT || 3000;
