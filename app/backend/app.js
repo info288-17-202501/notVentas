@@ -1,7 +1,10 @@
 require('dotenv').config()
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const express = require('express');
 const app = express();
+app.use(express.json()); // Middleware to parse JSON request bodies
 
 
 const LoggerMiddleware = require('./middleware/logger');
@@ -49,8 +52,25 @@ app.get('/users', async (req, res) => {
     }
 });
 
+
+// registra usuarios
+app.post('/register', async (req, res) => {
+    try {
+        const { email, password, name, rut, company_id, role_id } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await prisma.user.create({
+            data: { email, password: hashedPassword, rut, name, role_id, company_id }
+        });
+        res.status(201).json({ message: 'User Registered Successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error registering user' });
+    }
+});
+
 // print console route
 app.listen(PORT, () => {
     console.log(`app runing in: http://localhost:${PORT}`);
 
 });
+
+
