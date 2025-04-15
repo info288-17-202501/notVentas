@@ -5,7 +5,7 @@ const errorHandler = (err, req, res, next) => {
     
     console.error(`[ERROR] ${new Date().toISOString()} - ${statusCode} - ${message}`)
 
-    if (error.stack){
+    if (err.stack){
         console.error(error.stack);
     }
 
@@ -17,4 +17,4 @@ const errorHandler = (err, req, res, next) => {
     });
 };
 
-module.exports = errorHandler;
+export default errorHandler;

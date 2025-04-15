@@ -5,6 +5,11 @@
     - Paste code from the `database.sql` file
     - Verify tables
 
+### Implement Prisma - PostgreSQL
+    - npx prima init
+    - prima generate
+    - npx prisma migrate dev --name init
+
 ### Launch backend
     - Create archive .env in "/app/backend/"
         PORT=<PORT_BACKEND>

@@ -1,38 +1,34 @@
-require('dotenv').config()
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+import 'dotenv/config';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import express, { json } from 'express';
 
-const express = require('express');
+import routes from './routes/index.js';
+
+import LoggerMiddleware from './middleware/logger.js';
+import ErrorHandler from './middleware/errorHandler.js';
+import authenticateToken from './middleware/auth.js';
+
+
 const app = express();
-app.use(express.json()); // Middleware to parse JSON request bodies
-
-
-const LoggerMiddleware = require('./middleware/logger');
-const ErrorHandler = require('./middleware/errorHandler');
-
-const { PrismaClient } = require('./generated/prisma');
-const prisma = new PrismaClient();
-
-const authenticateToken = require('./middleware/auth')
-
-
-app.get('/protected-route', authenticateToken, (req, res) =>{
-    res.send('Esta es una ruta protegida');
-})
+app.use(json()); // Middleware para parsear JSON
 
 app.use(LoggerMiddleware);
-app.use(ErrorHandler)
-const PORT = process.env.PORT || 3000;
 
+// Ruta protegida
+app.get('/protected-route', authenticateToken, (req, res) =>{
+    res.send('Esta es una ruta protegida');
+});
 
+// Usar todas las rutas definidas en /routes
+app.use('/api', routes);
 
-
+// Ruta de prueba de error
 app.get('/error', (req, res, next) => {
     next(new Error('Error intencional'));
-})
+});
 
-
-// base route
+// Ruta base
 app.get('/',(req, res) => {
     res.send(`
         <h1>Developing NotVentas API</h1>    
@@ -40,37 +36,10 @@ app.get('/',(req, res) => {
     `);
 });
 
-// get user from DB
-app.get('/users', async (req, res) => {
-    try{
-        const users = await prisma.user.findMany();
-        res.json(users);
-    }catch (error){
-        res
-        .status(500)
-        .json({error: "Error al comunicarse con la base de datos"});
-    }
-});
+// Manejo de errores al final
+app.use(ErrorHandler);
 
-
-// registra usuarios
-app.post('/register', async (req, res) => {
-    try {
-        const { email, password, name, rut, company_id, role_id } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await prisma.user.create({
-            data: { email, password: hashedPassword, rut, name, role_id, company_id }
-        });
-        res.status(201).json({ message: 'User Registered Successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Error registering user' });
-    }
-});
-
-// print console route
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`app runing in: http://localhost:${PORT}`);
-
+    console.log(`App running at http://localhost:${PORT}`);
 });
-
-

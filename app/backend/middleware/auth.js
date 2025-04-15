@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const bcryp = require('bcryptjs');
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 function authenticateToken(req, res, next){
     const token = req.header('Authorization')?.split(' ')[1];
@@ -13,4 +13,4 @@ function authenticateToken(req, res, next){
 
 }
 
-module.exports = authenticateToken;
+export default authenticateToken;
