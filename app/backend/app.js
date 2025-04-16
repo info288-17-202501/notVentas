@@ -7,7 +7,7 @@ import routes from './routes/index.js';
 
 import LoggerMiddleware from './middleware/logger.js';
 import ErrorHandler from './middleware/errorHandler.js';
-import authenticateToken from './middleware/auth.js';
+import {authenticateToken} from './middleware/auth.js';
 
 
 const app = express();
@@ -15,7 +15,7 @@ app.use(json()); // Middleware para parsear JSON
 
 app.use(LoggerMiddleware);
 
-// Ruta protegida
+// Ruta protegida ejemplo
 app.get('/protected-route', authenticateToken, (req, res) =>{
     res.send('Esta es una ruta protegida');
 });

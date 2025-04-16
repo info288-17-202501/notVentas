@@ -14,6 +14,7 @@ export async function createUser( { email, password, name, rut, company_id, role
 export async function getUsers() {
     const users = await prisma.user.findMany();
     return users.map(({ password, ...user }) => user); // quitar contraseña de usuarios
+    //falta quitar de la lista los usuarios que fueron "borrados"
 }
 
 
@@ -52,7 +53,6 @@ export async function deleteUser({ email, password }) {
         throw new Error('Error deleting user: ' + error.message);
     }
 }
-
 
 class Validation{
     static email(email) {

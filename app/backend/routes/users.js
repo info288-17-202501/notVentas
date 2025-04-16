@@ -1,5 +1,6 @@
 import express from 'express';
 import {createUser, deleteUser, getUsers, login} from '../models/user.function.js'
+import {createSessionToken} from '../middleware/auth.js'
 
 const router = express.Router();
 
@@ -18,6 +19,7 @@ router.post('/register', async (req, res) => {
     try {
         const newUser = await createUser(req.body);
         if (newUser) {
+            // crear token y retornar
             res.status(201).json({ message: 'User Registered Successfully', user: newUser });
         } else {
             res.status(400).json({ error: 'Failed to create user' });
@@ -42,7 +44,8 @@ router.post('/delete-user', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         const user = await login(req.body);
-        res.status(200).json({ message: 'Login successful', user });
+        const token = await createSessionToken(user);
+        res.status(200).json({ message: 'Login successful', user, token });
     } catch (error) {        
         res.status(500).json({ error: error.message});
     }
