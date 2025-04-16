@@ -41,6 +41,35 @@ export async function login({ email, password }) {
     return publicUser;
 }
 
+export async function updateUser({ email, username, password, role_id }) {
+    if (!email) {
+        throw new Error('Email is required to update user');
+    }
+
+    const updateData = {};
+
+    if (username) {
+        updateData.name = username;
+    }
+
+    if (password) {
+        Validation.password(password);
+        updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    if (role_id) {
+        updateData.role_id = role_id;
+    }
+
+    const updatedUser = await prisma.user.update({
+        where: { email },
+        data: updateData
+    });
+
+    const { password: _, ...publicUser } = updatedUser;
+    return publicUser;
+}
+
 export async function deleteUser({ email, password }) {
     try {
         const user = await login({ email, password });

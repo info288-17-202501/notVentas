@@ -1,5 +1,5 @@
 import express from 'express';
-import {createUser, deleteUser, getUsers, login} from '../models/user.function.js'
+import {createUser, deleteUser, getUsers, login,updateUser} from '../models/user.function.js'
 import {createSessionToken} from '../middleware/auth.js'
 
 const router = express.Router();
@@ -29,10 +29,22 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// elimina usuario
+// Editar usuario (password, username)
+router.post('/edit-user', async (req, res) => {
+    try{
+        const upUser = await updateUser(req.body);
+        res.status(200).json({message: "User updated successfull"});
+    }catch(error){
+        res.status(500).json({error: error.message})
+    }
+
+})
+
+
+// elimina usuario (cambiar valor a is_active)
 router.post('/delete-user', async (req, res) => {
     try{
-        const updateUser = await deleteUser(req.body);
+        const delUser = await deleteUser(req.body);
         res.status(201).json({message: "User deleted correctly"});
     } catch(error){
         res.status(500).json({error: error.message});
