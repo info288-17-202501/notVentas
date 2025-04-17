@@ -1,5 +1,5 @@
 import express from 'express'
-import { createCategory, deleteCategory } from '../models/category.function.js'
+import { createCategory, deleteCategory, getCategories } from '../models/category.function.js'
 
 
 const router = express.Router();
@@ -11,6 +11,15 @@ router.post('/create-category', async (req, res) => {
         res.status(201).json({message: 'Category created successfull',newCategory});
     }catch (error){
         res.status(500).json({ error: error.message || 'Error to create a category' });
+    }
+})
+
+router.get('/categories', async (req, res) =>{
+    try{
+        const categories = await getCategories();
+        res.status(201).json({categories});
+    }catch(error){
+        res.status(500).json({error: "Error obtaining categories" || error.message})
     }
 })
 

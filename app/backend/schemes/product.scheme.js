@@ -1,4 +1,3 @@
-import { Category } from '@mui/icons-material';
 import {z} from 'zod';
 
 export const productSchema = z.object({

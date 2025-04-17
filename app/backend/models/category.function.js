@@ -1,6 +1,10 @@
 import { PrismaClient } from '../generated/prisma/index.js';
 const prisma = new PrismaClient();
 
+
+
+
+
 // Function to create a new category
 export async function createCategory({category_name}) {
     await Validation.categoryDoesNotExist(category_name)
@@ -12,7 +16,18 @@ export async function createCategory({category_name}) {
         throw new Error(`Error creating category: ${error.message}`);
     }
 }
-  
+
+// Function to get categories
+export async function getCategories() {
+    try{
+        const categories = await prisma.category.findMany();
+        return categories;
+    }catch(error){
+        throw new Error('Error al conectar con la base de datos')
+    }
+}
+
+
 // Function to delete a category
 export async function deleteCategory({category_name}) {
     await Validation.categoryMustExist(category_name)
