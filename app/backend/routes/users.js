@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/users', async (req, res) =>{
     try{
         const users = await getUsers();
-        res.send(users)
+        res.send(users);
     }catch (error){
         res.status(500).json({error: "Error al comunicarse con la base de datos"});
     }

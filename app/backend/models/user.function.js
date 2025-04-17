@@ -4,6 +4,8 @@ import { PrismaClient } from '../generated/prisma/index.js';
 const prisma = new PrismaClient();
 
 export async function createUser( { email, password, name, rut, company_id, role_id }){
+    Validation.email(email);
+    Validation.password(password);
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await prisma.user.create({
        data: { email, password: hashedPassword, rut, name, role_id, company_id }
