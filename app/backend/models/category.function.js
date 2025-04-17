@@ -2,22 +2,50 @@ import { PrismaClient } from '../generated/prisma/index.js';
 const prisma = new PrismaClient();
 
 // Function to create a new category
-export async function createCategory(category_name) {
+export async function createCategory({category_name}) {
+    await Validation.categoryDoesNotExist(category_name)
     try {
-        Validation.category(category_name)
-        const newCategory = await prisma.category.create({data: category_name});
+        const newCategory = await prisma.category.create({data: {category_name}});
         return newCategory;
         
     } catch (error) {
         throw new Error(`Error creating category: ${error.message}`);
     }
 }
+  
+// Function to delete a category
+export async function deleteCategory({category_name}) {
+    await Validation.categoryMustExist(category_name)
+
+    try{
+        const delCategory = await prisma.category.delete({
+            where: {category_name}
+        });
+        return delCategory;
+    }catch(error){
+        throw new Error(`Error deleting category: ${error.message}`)
+    }
+}
  
 class Validation {
-    static async category(category_name){
+    static async checkCategoryExistence(category_name) {
         const existingCategory = await prisma.category.findUnique({ where: { category_name } });
-            if (existingCategory) {
-                throw new Error('This category already exists');
-            }
+        return existingCategory;
+    }
+
+    // Valida que NO exista (para crear)
+    static async categoryDoesNotExist(category_name) {
+        const existingCategory = await this.checkCategoryExistence(category_name);
+        if (existingCategory) {
+            throw new Error('This category already exists');
+        }
+    }
+
+    // Valida que SÍ exista (para eliminar o editar)
+    static async categoryMustExist(category_name) {
+        const existingCategory = await this.checkCategoryExistence(category_name);
+        if (!existingCategory) {
+            throw new Error('This category does not exist');
+        }
     }
 }
