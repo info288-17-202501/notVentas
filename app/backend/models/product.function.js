@@ -1,8 +1,9 @@
 import { PrismaClient } from '../generated/prisma/index.js';
 const prisma = new PrismaClient();
 
+
+// crea un producto
 export async function createProduct({product_name, description, category_id, color_id}) {
-    
     Validation.color(color_id);
     Validation.category(category_id);
 
@@ -19,22 +20,25 @@ export async function createProduct({product_name, description, category_id, col
     }catch(error){
         throw new Error('Error creating product');
     }
-    
 }
 
-export async function updateProduct({product_id, product_name, description, category_id, color_id}) {
-    Validation.product(product_id)
-    Validation.category(category_id)
-    Validation.color(color_id)
+// actualiza un producto 
+export async function updateProduct(updateData) {
+    const { product_id, product_name, description, category_id, color_id } = updateData;
+
+    await Validation.product(product_id);
+
+    if (category_id !== undefined) await Validation.category(category_id);
+    if (color_id !== undefined) await Validation.color(color_id);
 
     try {
         const updatedProduct = await prisma.product.update({
             where: { product_id },
             data: {
-                product_name: product_name || existingProduct.product_name,
-                description: description || existingProduct.description,
-                category_id: category_id || existingProduct.category_id,
-                color_id: color_id || existingProduct.color_id
+                ...(product_name !== undefined && { product_name }),
+                ...(description !== undefined && { description }),
+                ...(category_id !== undefined && { category_id }),
+                ...(color_id !== undefined && { color_id })
             }
         });
         return updatedProduct;
@@ -43,6 +47,28 @@ export async function updateProduct({product_id, product_name, description, cate
     }
 }
 
+// funcion para obtener una lista de productos creados
+export async function getProducts() {
+    try{
+        const products = await prisma.product.findMany();
+        return products;
+    }catch(error){
+        throw new Error('Error connecting to the database')
+    }
+}
+
+// funcion para eliminar un producto
+export async function deleteProduct({product_id}) {
+    Validation.product(product_id)
+    try{
+        const delProduct = await prisma.product.delete({
+            where : {product_id}
+        });       
+        return delProduct;
+    }catch(error){
+        throw new Error('Error deleting the product')
+    }
+}
 
 class Validation{
     static async color(color_id){
