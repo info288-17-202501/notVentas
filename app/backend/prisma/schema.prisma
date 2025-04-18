@@ -73,7 +73,7 @@ model Category {
 model Color {
   color_id   Int       @id @default(autoincrement())
   color_name String    @unique
-  color_code String
+  color_code String    @unique
   products   Product[]
 }
 

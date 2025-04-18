@@ -1,9 +1,6 @@
 import { PrismaClient } from '../generated/prisma/index.js';
+
 const prisma = new PrismaClient();
-
-
-
-
 
 // Function to create a new category
 export async function createCategory({category_name}) {
@@ -23,7 +20,7 @@ export async function getCategories() {
         const categories = await prisma.category.findMany();
         return categories;
     }catch(error){
-        throw new Error('Error al conectar con la base de datos')
+        throw new Error('Error connecting to the database')
     }
 }
 
@@ -56,7 +53,7 @@ class Validation {
         }
     }
 
-    // Valida que SÍ exista (para eliminar o editar)
+    // Valida que SI exista (para eliminar o editar)
     static async categoryMustExist(category_name) {
         const existingCategory = await this.checkCategoryExistence(category_name);
         if (!existingCategory) {

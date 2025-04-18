@@ -55,7 +55,8 @@ CREATE TABLE Categories (
 -- Tabla: Colors
 CREATE TABLE Colors (
   color_id SERIAL PRIMARY KEY,
-  color_name VARCHAR(50) UNIQUE NOT NULL
+  color_name VARCHAR(50) UNIQUE NOT NULL,
+  color_code VARCHAR(20) UNIQUE NOT NULL
 );
 
 -- Tabla: Products

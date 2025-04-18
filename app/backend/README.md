@@ -6,8 +6,8 @@
     - Verify tables
 
 ### Implement Prisma - PostgreSQL
-    - npx prima init
-    - prima generate
+    - npx prisma init
+    - prisma generate
     - npx prisma migrate dev --name init
 
 ### Launch backend

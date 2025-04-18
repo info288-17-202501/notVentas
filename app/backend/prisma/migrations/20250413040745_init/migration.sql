@@ -62,6 +62,7 @@ CREATE TABLE "Category" (
 CREATE TABLE "Color" (
     "color_id" SERIAL NOT NULL,
     "color_name" TEXT NOT NULL,
+    "color_code" TEXT NOT NULL,
 
     CONSTRAINT "Color_pkey" PRIMARY KEY ("color_id")
 );
