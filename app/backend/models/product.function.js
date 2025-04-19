@@ -4,8 +4,8 @@ const prisma = new PrismaClient();
 
 // crea un producto
 export async function createProduct({product_name, description, category_id, color_id}) {
-    Validation.color(color_id);
-    Validation.category(category_id);
+    await Validation.color(color_id);
+    await Validation.category(category_id);
 
     try{
         const newProduct = await prisma.product.create({
@@ -59,7 +59,7 @@ export async function getProducts() {
 
 // funcion para eliminar un producto
 export async function deleteProduct({product_id}) {
-    Validation.product(product_id)
+    await Validation.product(product_id)
     try{
         const delProduct = await prisma.product.delete({
             where : {product_id}
@@ -72,7 +72,9 @@ export async function deleteProduct({product_id}) {
 
 class Validation{
     static async color(color_id){
-        const existingColor = await prisma.color.findUnique({ where: { color_id } });
+        const existingColor = await prisma.color.findUnique({ 
+            where: { color_id }
+        });
         if (!existingColor) {
         throw new Error('Color not found');
         }

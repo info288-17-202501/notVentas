@@ -38,7 +38,7 @@ router.get('/products', async(req, res) => {
 router.delete('/delete-product', async (req, res) => {
     try{
         await deleteProduct(req.body);
-        res.status(200).json({message: "Product deleted"})
+        res.status(200).json({message: "Product deleted"});
     }catch(error){
         res.status(500).json({error: error.message || 'Error to delete product'});
     }
