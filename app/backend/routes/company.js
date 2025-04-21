@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createCompany, getCompanyById, updateCompany, deleteCompany } from '../repositories/company.function.js';
+import { createCompany, getCompanyById, updateCompany, deleteCompany } from '../controllers/company.function.js';
 
 const router = Router();
 

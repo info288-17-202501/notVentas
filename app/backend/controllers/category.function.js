@@ -1,6 +1,4 @@
-import { PrismaClient } from '../generated/prisma/index.js';
-
-const prisma = new PrismaClient();
+import prisma  from '../db/client.js'; // Import the Prisma client instance
 
 // Function to create a new category
 export async function createCategory({category_name}) {

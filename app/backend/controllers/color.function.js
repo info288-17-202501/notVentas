@@ -1,6 +1,4 @@
-import {PrismaClient} from '../generated/prisma/index.js'
-
-const prisma = new PrismaClient();
+import prisma  from '../db/client.js';
 
 // función para crear color
 export async function createColor({color_name, color_code}) {

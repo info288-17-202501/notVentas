@@ -1,5 +1,5 @@
 import express from 'express';
-import {createUser, deleteUser, getUsers, login,updateUser} from '../repositories/user.function.js'
+import {createUser, deleteUser, getUsers, login,updateUser} from '../controllers/user.function.js'
 import {createSessionToken} from '../middleware/auth.js'
 
 const router = express.Router();

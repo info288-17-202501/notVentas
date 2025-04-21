@@ -1,7 +1,6 @@
 import bcrypt from 'bcryptjs';
-import { PrismaClient } from '../generated/prisma/index.js';
+import prisma  from '../db/client.js';
 
-const prisma = new PrismaClient();
 
 export async function createUser( { email, password, name, rut, company_id, role_id }){
     Validation.email(email);
