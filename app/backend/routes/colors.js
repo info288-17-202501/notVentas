@@ -1,5 +1,5 @@
 import express, { json } from 'express'
-import {createColor, getColor} from '../models/color.function.js'
+import {createColor, getColor} from '../repositories/color.function.js'
 
 const router = express.Router();
 

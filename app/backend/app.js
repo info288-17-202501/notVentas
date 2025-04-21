@@ -1,6 +1,4 @@
 import 'dotenv/config';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import express, { json } from 'express';
 
 import routes from './routes/index.js';
