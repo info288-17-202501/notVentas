@@ -1,5 +1,5 @@
 import {prisma} from './client.js'
-
+import bcrypt from 'bcrypt'
 
 async function main() {
     // Crear la compañía
@@ -28,7 +28,7 @@ async function main() {
         {
           name: 'Juan Pérez',
           email: 'juan.perez@example.com',
-          password: '12345678',
+          password: await bcrypt.hash('12345678', 10),
           rut: '12.345.678-9',
           is_active: true,
           company_id: company.company_id,
@@ -37,7 +37,7 @@ async function main() {
         {
           name: 'María López',
           email: 'maria.lopez@example.com',
-          password: 'abcdef12',
+          password: await bcrypt.hash('abcdef12', 10),
           rut: '98.765.432-1',
           is_active: true,
           company_id: company.company_id,
@@ -46,7 +46,7 @@ async function main() {
         {
           name: 'Carlos Sánchez',
           email: 'carlos.sanchez@example.com',
-          password: 'pass1234',
+          password: await bcrypt.hash('pass1234', 10),
           rut: '11.223.344-5',
           is_active: true,
           company_id: company.company_id,
@@ -54,6 +54,7 @@ async function main() {
         }
       ]
     });
+  
   
     console.log('Compañía, rol y usuarios registrados correctamente');
   }

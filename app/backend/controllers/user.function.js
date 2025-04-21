@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import prisma  from '../db/client.js';
+import { createSessionToken } from '../middleware/auth.js';
 
 
 export async function createUser( { email, password, name, rut, company_id, role_id }){
@@ -95,5 +96,18 @@ class Validation{
     static password(password){
         if(typeof password !== 'string') throw new Error('password must be a string');
         if(password.length < 6) throw new Error('password must be at least 6 characters long');
+    }
+}
+
+export async function loginUserController(req, res) {
+    const { email, password } = req.body;
+
+    try {
+        const user = await login({ email, password });
+        const token = await createSessionToken(user);
+
+        res.status(200).json({ token, user });
+    } catch (error) {
+        res.status(401).json({ error: error.message });
     }
 }

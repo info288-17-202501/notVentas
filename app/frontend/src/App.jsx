@@ -1,19 +1,26 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import Catalog from './pages/Catalog';
-import Navbar from './components/Navbar';
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/routes/ProtectedRoute";
+
+import Home from "./pages/home";
+import Catalog from "./pages/Catalog";
+import Login from "./pages/Login";
 
 function App() {
-  return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/catalog" element={<Catalog />} />
-      </Routes>
-    </Router>
-  );
+	return (
+		<BrowserRouter>
+			<Routes>
+				{/* Ruta pública */}
+				<Route path="/" element={<Home />} />
+				<Route path="/login" element={<Login />} />
+
+				{/* Rutas protegidas */}
+				<Route element={<ProtectedRoute />}>
+					<Route path="/catalog" element={<Catalog />} />
+				</Route>
+			</Routes>
+		</BrowserRouter>
+	);
 }
 
 export default App;
-
