@@ -7,9 +7,19 @@ import LoggerMiddleware from './middleware/logger.js';
 import ErrorHandler from './middleware/errorHandler.js';
 import {authenticateToken} from './middleware/auth.js';
 
+import cors from 'cors';
+
+const corsOptions = {
+    origin: '*', // Permitir todas las solicitudes de cualquier origen
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
+    allowedHeaders: ['Content-Type', 'Authorization', 'body'], // Encabezados permitidos
+};
+
 
 const app = express();
 app.use(json()); // Middleware para parsear JSON
+
+app.use(cors(corsOptions));
 
 app.use(LoggerMiddleware);
 
