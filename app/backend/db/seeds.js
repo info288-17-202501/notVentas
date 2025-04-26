@@ -1,5 +1,4 @@
 import {prisma} from './client.js'
-import bcrypt from 'bcrypt'
 
 async function main() {
     // Crear la compañía
@@ -16,45 +15,28 @@ async function main() {
     });
   
     // Crear el rol de administrador
-    const role = await prisma.role.create({
-      data: {
-        role_name: 'admin'
-      }
-    });
-  
-    // Crear usuarios asociados a esa compañía y rol
-    await prisma.user.createMany({
+    const roles = await prisma.role.createMany({
       data: [
-        {
-          name: 'Juan Pérez',
-          email: 'juan.perez@example.com',
-          password: await bcrypt.hash('12345678', 10),
-          rut: '12.345.678-9',
-          is_active: true,
-          company_id: company.company_id,
-          role_id: role.role_id
-        },
-        {
-          name: 'María López',
-          email: 'maria.lopez@example.com',
-          password: await bcrypt.hash('abcdef12', 10),
-          rut: '98.765.432-1',
-          is_active: true,
-          company_id: company.company_id,
-          role_id: role.role_id
-        },
-        {
-          name: 'Carlos Sánchez',
-          email: 'carlos.sanchez@example.com',
-          password: await bcrypt.hash('pass1234', 10),
-          rut: '11.223.344-5',
-          is_active: true,
-          company_id: company.company_id,
-          role_id: role.role_id
-        }
+      { role_name: 'sadmin' },
+      { role_name: 'admin' },
+      { role_name: 'seller' }
       ]
     });
-  
+
+    const store = await prisma.store.create({
+      data: {
+      store_name: 'Tienda Ejemplo',
+      coord_latitude: -33.4489,
+      coord_longitude: -70.6693,
+      address_street: 'Av. Ejemplo 456',
+      address_city: 'Santiago',
+      address_state: 'RM',
+      address_zip: '8320000',
+      is_active: true,
+      company_id: company.company_id
+      }
+    });
+   
   
     console.log('Compañía, rol y usuarios registrados correctamente');
   }
