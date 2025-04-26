@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation"; // Importa useRouter de Next.js
 import axios from "axios";
+import {login} from '../../api/auth'
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -14,16 +15,15 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:5173/api/auth/login", {
-        email,
-        contrasena,
-      });
+      const response = await login(email, contrasena); // Llama a la función de login
+      console.log("Respuesta de la API:", response); // Muestra la respuesta de la API
 
-      const { token } = response.data;
-      localStorage.setItem("token", token);
-      router.push("/catalog"); // Redirige usando router.push
     } catch (err) {
-      setError("Credenciales incorrectas o error del servidor");
+      if (err.response && err.response.data && err.response.data.error) {
+        setError(err.response.data.error); // Muestra el error retornado por la API
+      } else {
+        setError("Credenciales incorrectas o error del servidor");
+      }
       console.error(err);
     }
   };

@@ -38,7 +38,7 @@ async function main() {
     });
    
   
-    console.log('Compañía, rol y usuarios registrados correctamente');
+    console.log('Compañía, tienda y roles registrados correctamente');
   }
   
   main()
