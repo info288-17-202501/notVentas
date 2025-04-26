@@ -12,7 +12,8 @@ import cors from 'cors';
 const corsOptions = {
     origin: '*', // Permitir todas las solicitudes de cualquier origen
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
-    allowedHeaders: ['Content-Type', 'Authorization', 'body'], // Encabezados permitidos
+    AccessControlAllowCredentials: '*', // Permitir todos los orígenes
+    allowedHeaders: ['Content-Type', 'Authorization', 'Body'], // Encabezados permitidos
 };
 
 
