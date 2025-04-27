@@ -1,0 +1,46 @@
+import express from 'express';
+import { addProductToStore, updateProductInStore, getStoreProducts, deleteStoreProduct } from '../controllers/storeProduct.function.js';
+
+const router = express.Router();
+
+// Agregar producto a tienda
+router.post('/add-store-product', async (req, res) => {
+    try {
+        const storeProduct = await addProductToStore(req.body);
+        res.status(201).json({ message: "Product added to store", storeProduct });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Actualizar cantidad de producto en tienda
+router.put('/update-store-product', async (req, res) => {
+    try {
+        const updated = await updateProductInStore(req.body);
+        res.status(200).json({ message: "Store product updated", updated });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Obtener productos de una tienda
+router.get('/store-products/:store_id', async (req, res) => {
+    try {
+        const products = await getStoreProducts(Number(req.params.store_id));
+        res.status(200).json({ products });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Eliminar producto de tienda
+router.delete('/delete-store-product', async (req, res) => {
+    try {
+        const deleted = await deleteStoreProduct(req.body);
+        res.status(200).json({ message: "Product deleted from store", deleted });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+export default router;
