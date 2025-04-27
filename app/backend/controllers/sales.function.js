@@ -1,18 +1,24 @@
 import prisma from "../db/client.js";
 
 export async function createSale(data) {
-    const { sale_number, sale_date, store_id, user_id, sale_total } = data; 
-
-    const newSale = await prisma.sale.create({
-        data: {
-            sale_number,
-            sale_date,
-            store_id,
-            user_id,
-            sale_total
-        }
-    });
-    return newSale;
+    const { sale_number, store_id, user_id, sale_total } = data; 
+   
+    let sale_date = new Date().toISOString(); // fecha actual en formato ISO 8601 (tipo datetime)
+    try {
+        const newSale = await prisma.sale.create({
+            data: {
+                sale_number,
+                sale_date,
+                sale_total,
+                user_id,
+                store_id,
+            }
+        });
+        return {newSale};
+    } catch (error) {
+        console.error('Error creating sale:', error);
+        throw new Error('Error creating sale in the database');
+    }
 }
 
 export async function getSales() {

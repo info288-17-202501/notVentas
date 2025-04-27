@@ -1,5 +1,21 @@
 import prisma  from '../db/client.js';
 
+
+// get companies
+export async function getCompanies() {
+    try {
+        const companies = await prisma.company.findMany({
+            orderBy: { company_name: 'asc' },
+        });
+        return companies;
+    } catch (error) {
+        console.error('Error fetching companies:', error);
+        throw error;
+    }
+}
+
+
+
 // Create a new company
 export async function createCompany(data) {
     try {

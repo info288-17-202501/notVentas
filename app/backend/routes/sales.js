@@ -17,7 +17,7 @@ router.post('/', async (req, res) => {
         const newSale = await createSale(req.body);
         res.status(201).json(newSale);
     } catch (error) {
-        res.status(500).json({ error: 'Error creating sale' });
+        res.status(500).json({ error: 'Error creating sale' || error });
     }
 });
 

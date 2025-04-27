@@ -1,7 +1,18 @@
 import { Router } from 'express';
-import { createCompany, getCompanyById, updateCompany, deleteCompany } from '../controllers/company.function.js';
+import { createCompany, getCompanies, getCompanyById, updateCompany, deleteCompany } from '../controllers/company.function.js';
 
 const router = Router();
+
+
+router.get('/', async (_, res) => {
+    try {
+        const companies = await getCompanies();
+        res.status(200).json(companies);
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching companies' });
+    }
+});
+
 
 // Route to create a new company
 router.post('/create-company', async (req, res) => {

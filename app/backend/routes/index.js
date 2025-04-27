@@ -17,9 +17,9 @@ routes.use('/auth', authRoutes);
 // Rutas protegidas
 routes.use('/store', storeRoutes); 
 routes.use('/sale', saleRoutes);
-routes.use('/user', authenticateToken, userRoutes);
+routes.use('/user', userRoutes);
 routes.use('/product', authenticateToken, productRoutes);
-routes.use('/company', authenticateToken, companyRoutes);
+routes.use('/company', companyRoutes);
 routes.use('/color', authenticateToken, colorRoutes);
 routes.use('/category', authenticateToken, categoryRoutes);
 
