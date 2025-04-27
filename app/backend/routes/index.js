@@ -1,19 +1,23 @@
 import express from 'express';
+import userRoutes from './users.js';
+import productRoutes from './products.js';
+import categoryRoutes from './categories.js';
+import colorRoutes from './colors.js';
+import companyRoutes from './company.js';
+import authRoutes from './auth.js';
+import { authenticateToken } from '../middleware/auth.js';
+
 const routes = express.Router();
 
-import userRoutes from './users.js';
-import productRoutes from './products.js'
-import categoryRoutes  from './categories.js';
-import colorRoutes from './colors.js'
-import companyRoutes from './company.js'
-import authRoutes from './auth.js';
+// Rutas públicas
 
-routes.use('/', colorRoutes)
-routes.use('/', categoryRoutes);
-routes.use('/', userRoutes);
-routes.use('/', productRoutes);
-routes.use('/', companyRoutes);
 routes.use('/auth', authRoutes);
-routes.use('/users', userRoutes);
+
+// Rutas protegidas
+routes.use('/user', authenticateToken, userRoutes);
+routes.use('/product', authenticateToken, productRoutes);
+routes.use('/company', authenticateToken, companyRoutes);
+routes.use('/color', authenticateToken, colorRoutes);
+routes.use('/category', authenticateToken, categoryRoutes);
 
 export default routes;
