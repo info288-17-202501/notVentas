@@ -1,7 +1,5 @@
 import bcrypt from 'bcryptjs';
 import prisma  from '../db/client.js';
-import { createSessionToken } from '../middleware/auth.js';
-
 
 export async function createUser( { email, password, name, rut, company_id, role_id }){
     Validation.email(email);
