@@ -37,7 +37,7 @@ export async function login({ email, password }) {
     if(!user.is_active){
         throw new Error('User not found')
     }
-    const { password: _, ...publicUser } = user;
+    const { password: _, ...publicUser } = user; // no devuelve la contraseña
     return publicUser;
 }
 
