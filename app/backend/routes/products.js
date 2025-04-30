@@ -25,7 +25,7 @@ router.post('/update', async (req, res) => {
 })
 
 // Obtener productos
-router.get('/products', async(req, res) => {
+router.get('/', async(req, res) => {
     try{
         const products = await getProducts();
         res.status(200).json({products});

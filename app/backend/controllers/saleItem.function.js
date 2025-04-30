@@ -2,7 +2,7 @@ import prisma from '../db/client.js';
 
 export async function addSaleItem({ sale_id, product_id, quantity, price }) {
     try {
-        const saleItem = await prisma.sale_Items.create({
+        const saleItem = await prisma.saleItem.create({
             data: {
                 sale_id,
                 product_id,
@@ -18,7 +18,7 @@ export async function addSaleItem({ sale_id, product_id, quantity, price }) {
 
 export async function getSaleItems(sale_id) {
     try {
-        const items = await prisma.sale_Items.findMany({
+        const items = await prisma.saleItem.findMany({
             where: { sale_id },
             include: { product: true }
         });
@@ -30,7 +30,7 @@ export async function getSaleItems(sale_id) {
 
 export async function deleteSaleItem({ sale_id, product_id }) {
     try {
-        const deleted = await prisma.sale_Items.delete({
+        const deleted = await prisma.saleItem.delete({
             where: {
                 sale_id_product_id: { sale_id, product_id }
             }

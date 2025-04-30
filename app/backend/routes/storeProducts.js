@@ -1,5 +1,5 @@
 import express from 'express';
-import { addProductToStore, updateProductInStore, getStoreProducts, deleteStoreProduct } from '../controllers/storeProduct.function.js';
+import { addProductToStore, updateProductInStore, getStoreProducts, deleteStoreProduct } from '../controllers/storeProducts.function.js';
 
 const router = express.Router();
 
@@ -24,7 +24,7 @@ router.put('/update', async (req, res) => {
 });
 
 // Obtener productos de una tienda
-router.get('/store/:store_id', async (req, res) => {
+router.get('/:store_id', async (req, res) => {
     try {
         const products = await getStoreProducts(Number(req.params.store_id));
         res.status(200).json({ products });
