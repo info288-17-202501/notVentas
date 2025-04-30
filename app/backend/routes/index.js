@@ -7,6 +7,8 @@ import companyRoutes from './company.js';
 import authRoutes from './auth.js';
 import storeRoutes from './store.js';
 import saleRoutes from './sales.js';
+import storeProductRoutes from './storeProduct.js';
+import saleItemRoutes from './saleItem.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const routes = express.Router();
@@ -22,5 +24,7 @@ routes.use('/product', authenticateToken, productRoutes);
 routes.use('/company', companyRoutes);
 routes.use('/color', authenticateToken, colorRoutes);
 routes.use('/category', authenticateToken, categoryRoutes);
+routes.use('/storeproduct', authenticateToken, storeProductRoutes);
+routes.use('/saleitem', authenticateToken, saleItemRoutes);
 
 export default routes;

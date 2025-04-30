@@ -4,7 +4,7 @@ import { addProductToStore, updateProductInStore, getStoreProducts, deleteStoreP
 const router = express.Router();
 
 // Agregar producto a tienda
-router.post('/add-store-product', async (req, res) => {
+router.post('/add', async (req, res) => {
     try {
         const storeProduct = await addProductToStore(req.body);
         res.status(201).json({ message: "Product added to store", storeProduct });
@@ -14,7 +14,7 @@ router.post('/add-store-product', async (req, res) => {
 });
 
 // Actualizar cantidad de producto en tienda
-router.put('/update-store-product', async (req, res) => {
+router.put('/update', async (req, res) => {
     try {
         const updated = await updateProductInStore(req.body);
         res.status(200).json({ message: "Store product updated", updated });
@@ -24,7 +24,7 @@ router.put('/update-store-product', async (req, res) => {
 });
 
 // Obtener productos de una tienda
-router.get('/store-products/:store_id', async (req, res) => {
+router.get('/store/:store_id', async (req, res) => {
     try {
         const products = await getStoreProducts(Number(req.params.store_id));
         res.status(200).json({ products });
@@ -34,7 +34,7 @@ router.get('/store-products/:store_id', async (req, res) => {
 });
 
 // Eliminar producto de tienda
-router.delete('/delete-store-product', async (req, res) => {
+router.delete('/delete', async (req, res) => {
     try {
         const deleted = await deleteStoreProduct(req.body);
         res.status(200).json({ message: "Product deleted from store", deleted });
