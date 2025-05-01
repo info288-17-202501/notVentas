@@ -1,29 +1,29 @@
-// Datos de ejemplo
+import Image from 'next/image';
+
 const products = [
     {
       id: 1,
       name: "Cubre Mochila Rojo",
-      image: "/images/rojo.jpg",
+      image: "/images/rojo.jpeg",
       price: "$9.990",
       description: "Resistente al agua, ideal para días lluviosos."
     },
     {
       id: 2,
       name: "Cubre Mochila Azul",
-      image: "/images/azul.jpg",
+      image: "/images/azul.jpeg",
       price: "$10.990",
       description: "Material reflectante para mayor seguridad."
     },
     {
       id: 3,
       name: "Cubre Mochila verde",
-      image: "/images/verde.jpg",
+      image: "/images/verde.jpeg",
       price: "$7.990",
       description: "Resistente al fuego, ideal para el infierno."
     }
   ];
   
-  // Componente principal
   export default function CatalogPage() {
     return (
       <div className="p-8">
@@ -34,10 +34,12 @@ const products = [
               key={product.id}
               className="bg-white shadow-md rounded-2xl overflow-hidden"
             >
-              <img
+              <Image
                 src={product.image}
                 alt={product.name}
-                className="w-full h-48 object-cover"
+                width={300}
+                height={200}
+                className="w-full object-cover"
               />
               <div className="p-4">
                 <h2 className="text-xl font-semibold text-orange-700">{product.name}</h2>
