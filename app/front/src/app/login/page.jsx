@@ -57,7 +57,7 @@ const Login = () => {
           <p className="text-center text-gray-600 text-sm mb-4">
             ¿No tienes cuenta? 
             <a
-              href="/account"
+              href="/register"
               className="text-blue-500 hover:underline m-4"
             >
               Sé parte del equipo
