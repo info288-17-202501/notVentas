@@ -39,7 +39,7 @@ const products = [
                 alt={product.name}
                 width={300}
                 height={200}
-                className="w-full object-cover"
+                className="w-full h-80 object-cover"
               />
               <div className="p-4">
                 <h2 className="text-xl font-semibold text-orange-700">{product.name}</h2>
