@@ -13,5 +13,5 @@ export function middleware(req) {
 
 // Configura las rutas protegidas
 export const config = {
-  matcher: ["/catalog/:path*"], // Aplica el middleware a las rutas protegidas
+  matcher: ["/admin/:path*"], // Aplica el middleware a las rutas protegidas
 };

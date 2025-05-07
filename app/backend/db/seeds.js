@@ -1,6 +1,7 @@
 import prisma from './client.js'
 
 async function main() {
+
     // Crear la compañía
     const company = await prisma.company.create({
       data: {
@@ -22,7 +23,7 @@ async function main() {
       { role_name: 'seller' }
       ]
     });
-
+    // Crea la tienda
     const store = await prisma.store.create({
       data: {
       store_name: 'Tienda Ejemplo',
@@ -39,6 +40,10 @@ async function main() {
    
   
     console.log('Compañía, tienda y roles registrados correctamente');
+    // mostramos los datos creados
+    console.log('Compañía:', company);
+    console.log('Tienda:', store);
+    console.log('Roles:', roles);
   }
   
   main()

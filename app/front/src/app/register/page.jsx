@@ -8,17 +8,23 @@ const Register = () => {
   const [rut , setRut] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [company, setCompany] = useState("2");
-  const [role, setRole] = useState("1"); // Cambia a "user" por defecto
+  const [company_id, setCompany] = useState(10);
+  const [role_id, setRole] = useState(14); // Cambia a "user" por defecto
   const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
+    
     try {
-      const response = await register(name, email, password); // Llama a la función de registro
+      const data = { name, password,email, rut, company_id, role_id }
+      console.log("Respuesta de la API:", data); // Muestra la respuesta de la AP
+      const response = await register(data); // Llama a la función de registro
+
+
+
+
       console.log("Usuario registrado:", response);
 
       // Redirige al usuario al login después del registro
@@ -73,19 +79,20 @@ const Register = () => {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-2 mb-4 border rounded"
             required
-          />
+          />{
+          }
           <input
-            type="text"
+            type="number"
             placeholder="Compañia"
-            value={company}
+            value={company_id}
             onChange={(e) => setCompany(e.target.value)}
             className="w-full p-2 mb-4 border rounded"
             required
           />
           <input
-            type="text"
+            type="number"
             placeholder="Rol"
-            value={role}
+            value={role_id}
             onChange={(e) => setRole(e.target.value)}
             className="w-full p-2 mb-4 border rounded"
             required

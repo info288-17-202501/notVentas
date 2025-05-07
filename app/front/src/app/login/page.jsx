@@ -18,6 +18,11 @@ const Login = () => {
       const response = await login(email, contrasena); // Llama a la función de login
       console.log("Respuesta de la API:", response); // Muestra la respuesta de la API
 
+      //Guarda el token en el localStorage
+      localStorage.setItem("token", token);
+      // Redirige al usuario a la página protegida.
+      router.push("/admin");
+
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
         setError(err.response.data.error); // Muestra el error retornado por la API
@@ -61,6 +66,12 @@ const Login = () => {
               className="text-blue-500 hover:underline m-4"
             >
               Sé parte del equipo
+            </a>
+            <a
+              href="/registerCompany"
+              className="text-blue-500 hover:underline m-4"
+            >
+              Registra tu empresa aquí
             </a>
           </p>
           <button

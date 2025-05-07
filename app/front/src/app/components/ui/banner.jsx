@@ -21,7 +21,7 @@ const Banner = () => {
                 <h2 className='text-white text-lg font-semibold text-center mx-3' style={{ textShadow: '2px 2px 4px #000000' }}>
                 Explora nuestras increíbles características y disfruta de una experiencia única.
                 </h2>
-                <Link href="/servicios">
+                <Link href="/catalog">
                     <span className="wave-text bg-lime-500 text-white px-6 py-2 text-center rounded-full text-lg font-semibold hover:bg-lime-800 transition duration-300">
                     Conoce nuestro catálogo
                     </span>
