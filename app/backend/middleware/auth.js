@@ -16,7 +16,8 @@ export async function createSessionToken(user) {
     const payload = {
         id: user.id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        role_id: user.role_id
     };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
     return token;

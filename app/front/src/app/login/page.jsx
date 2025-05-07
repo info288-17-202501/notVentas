@@ -17,6 +17,9 @@ const Login = () => {
     try {
       const response = await login(email, contrasena); // Llama a la función de login
       console.log("Respuesta de la API:", response); // Muestra la respuesta de la API
+      // Guarda el token en el localStorage
+      const token = response.token; // Asegúrate de que la respuesta contenga el token
+      console.log("Token recibido:", token); // Muestra el token recibido
 
       //Guarda el token en el localStorage
       localStorage.setItem("token", token);
