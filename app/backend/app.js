@@ -1,12 +1,8 @@
 import 'dotenv/config';
 import express, { json } from 'express';
-
 import routes from './routes/index.js';
-
 import LoggerMiddleware from './middleware/logger.js';
 import ErrorHandler from './middleware/errorHandler.js';
-import {authenticateToken} from './middleware/auth.js';
-
 import cors from 'cors';
 
 const corsOptions = {
@@ -16,26 +12,14 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization', 'Body'], // Encabezados permitidos
 };
 
-
 const app = express();
+
 app.use(json()); // Middleware para parsear JSON
-
 app.use(cors(corsOptions));
-
 app.use(LoggerMiddleware);
-
-// Ruta protegida ejemplo
-app.get('/protected-route', authenticateToken, (req, res) =>{
-    res.send('Esta es una ruta protegida');
-});
 
 // Usar todas las rutas definidas en /routes
 app.use('/api', routes);
-
-// Ruta de prueba de error
-app.get('/error', (req, res, next) => {
-    next(new Error('Error intencional'));
-});
 
 // Ruta base
 app.get('/',(req, res) => {
