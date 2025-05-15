@@ -1,22 +1,19 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ProtectedRoute from "./components/routes/ProtectedRoute";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
-import Home from "./pages/home";
-import Catalog from "./pages/Catalog";
 import Login from "./pages/Login";
-
+import Dashboard from "./pages/Dashboard";
 function App() {
 	return (
 		<BrowserRouter>
 			<Routes>
 				{/* Ruta pública */}
-				<Route path="/" element={<Home />} />
-				<Route path="/login" element={<Login />} />
-
+				<Route path="/" element={<Login />} />
+				
 				{/* Rutas protegidas */}
 				<Route element={<ProtectedRoute />}>
-					<Route path="/catalog" element={<Catalog />} />
+					<Route path="/dashboard" element={<Dashboard />} />					
 				</Route>
 			</Routes>
 		</BrowserRouter>
