@@ -56,7 +56,7 @@ const Dashboard: React.FC = () => {
         flexDirection: "column",
         alignItems: "center",
         overflowX: "hidden",
-        py: 4,
+        py: 2,
       }}
     >
       <Header />
@@ -65,6 +65,7 @@ const Dashboard: React.FC = () => {
           width: "100%",
           maxWidth: 1200,
           px: 2,
+          mt:2,
         }}
       >
         <Typography variant="h4" color="black" gutterBottom>

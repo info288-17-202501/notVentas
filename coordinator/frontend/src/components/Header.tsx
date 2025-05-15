@@ -36,7 +36,7 @@ const Header: React.FC = () => {
     };
 
     return (
-        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={{ mg:1 }}>
             <AppBar position="static">
                 <Toolbar>
                     {/* Menú principal */}

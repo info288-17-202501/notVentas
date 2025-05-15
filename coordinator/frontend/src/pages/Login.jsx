@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
-  Container,
   Box,
   TextField,
   Button,
@@ -12,6 +11,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -27,7 +27,7 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:3000/api/auth/login", {
+      const response = await axios.post("/api/auth/login", {
         email,
         password,
       });
