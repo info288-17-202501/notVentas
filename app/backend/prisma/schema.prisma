@@ -28,23 +28,16 @@ model Company {
   stores         Store[]
 }
 
-model Role {
-  role_id   Int    @id @default(autoincrement())
-  role_name String @unique
-  users     User[]
-}
-
 model User {
   user_id   Int     @id @default(autoincrement())
   name      String
   email     String  @unique
   password  String
   rut       String? @unique
+  role      String
   is_active Boolean @default(true)
   company   Company @relation(fields: [company_id], references: [company_id])
   company_id Int
-  role      Role    @relation(fields: [role_id], references: [role_id])
-  role_id   Int
   sales     Sale[]
 }
 

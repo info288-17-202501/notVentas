@@ -12,6 +12,7 @@ import {
   useTheme,
 } from "@mui/material";
 
+import login from '../services/login'
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -27,10 +28,7 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await axios.post("/api/auth/login", {
-        email,
-        password,
-      });
+      const response = await login({email,  password});
       const { token } = response.data;
       localStorage.setItem("token", token);
       navigate("/dashboard");

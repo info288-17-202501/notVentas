@@ -5,7 +5,7 @@ import { createCategory, deleteCategory, getCategories } from '../controllers/ca
 const router = express.Router();
 
 // Crear categoria
-router.post('/create-category', async (req, res) => {
+router.post('/', async (req, res) => {
     try{
         const newCategory = await createCategory(req.body);
         res.status(201).json({message: 'Category created successfull',newCategory});
@@ -14,7 +14,7 @@ router.post('/create-category', async (req, res) => {
     }
 })
 
-router.get('/categories', async (req, res) =>{
+router.get('/', async (req, res) =>{
     try{
         const categories = await getCategories();
         res.status(201).json({categories});
@@ -23,12 +23,21 @@ router.get('/categories', async (req, res) =>{
     }
 })
 
-router.delete('/delete-category', async (req, res) =>{
+router.delete('/', async (req, res) =>{
     try{
         const delCategory = await deleteCategory(req.body);
         res.status(200).json({message: 'Category Deleted successfull'});
     }catch(error){
         res.status(500).json({error: error.message || 'Error to delete this category'});
+    }
+})
+
+router.put('/', async (req, res) =>{
+    try{
+        const upCategory = await updateCategory(req.body);
+        res.status(200).json({message: 'Category updated', upCategory});
+    }catch(error){
+        res.status(500).json({error: error.message || 'Error to update this category'});
     }
 })
 

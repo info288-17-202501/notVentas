@@ -3,7 +3,7 @@ import {createColor, getColor} from '../controllers/color.function.js'
 
 const router = express.Router();
 
-router.post('/create-color', async (req, res) =>{
+router.post('/', async (req, res) =>{
     try{
         const newColor = await createColor(req.body);
         res.status(201).json({message: "Color Created", newColor})
@@ -12,7 +12,7 @@ router.post('/create-color', async (req, res) =>{
     }
 })
 
-router.get('/colors', async (req, res) => {
+router.get('/', async (req, res) => {
     try{
         const colors = await getColor();
         res.status(201).json({colors})

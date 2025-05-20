@@ -14,22 +14,16 @@ CREATE TABLE Companies (
   address_zip VARCHAR(20)
 );
 
--- Tabla: Roles
-CREATE TABLE Roles (
-  role_id SERIAL PRIMARY KEY,
-  role_name VARCHAR(50) UNIQUE NOT NULL
-);
-
 -- Tabla: Users
 CREATE TABLE Users (
   user_id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
+  role VARCHAR(50) NOT NULL,
   password TEXT NOT NULL,
   rut VARCHAR(20) UNIQUE,
   is_active BOOLEAN DEFAULT TRUE,
   company_id INT REFERENCES Companies(company_id),
-  role_id INT REFERENCES Roles(role_id)
 );
 
 -- Tabla: Stores

@@ -12,7 +12,7 @@ router.post('/login', async (req, res) => {
         const token = await createSessionToken(user);
         res.status(200).json({ message: 'Login successful', user, token });
     } catch (error) {        
-        res.status(401).json({ error: error.message});
+        res.status(401).json({ error: error.message || 'Error logging in' });
     }
 });
 
@@ -20,16 +20,10 @@ router.post('/login', async (req, res) => {
 router.post('/register', async (req, res) => {
     try {
         const newUser = await createUser(req.body);
-        if (newUser) {
-            // crear token y retornar
-            res.status(201).json({ message: 'User Registered Successfully', user: newUser });
-        } else {
-            res.status(400).json({ error: 'Failed to create user' });
-        }
+        const { password, ...userWithoutPassword } = newUser;
+        res.status(201).json({ message: 'User Registered Successfully', user: userWithoutPassword });
     } catch (error) {
-        // imprimir error en consola
-        console.error(error);
-        res.status(500).json({ error: 'Error registering user' });
+        res.status(500).json({ error: error.message || 'Error registering user' });
     }
 });
 

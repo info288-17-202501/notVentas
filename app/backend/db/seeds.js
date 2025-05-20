@@ -14,15 +14,8 @@ async function main() {
         address_zip: '8320000'
       }
     });
-  
-    // Crear el rol de administrador
-    const roles = await prisma.role.createMany({
-      data: [
-      { role_name: 'sadmin' },
-      { role_name: 'admin' },
-      { role_name: 'seller' }
-      ]
-    });
+
+ 
     // Crea la tienda
     const store = await prisma.store.create({
       data: {
@@ -37,13 +30,82 @@ async function main() {
       company_id: company.company_id
       }
     });
-   
+
+    // registramos categorias
+    const categories = await prisma.category.createMany({
+      data: [
+        {
+          category_name: 'Electrónica',
+        },
+        {
+          category_name: 'Ropa',
+        }
+      ]
+    });
+    // registrar colores
+    const colors = await prisma.color.createMany({
+      data: [
+        {
+          color_name: 'Rojo',
+          color_code: '#FF0000'
+        },
+        {
+          color_name: 'Azul',
+          color_code: '#0000FF'
+        },
+        {
+          color_name: 'Verde',
+          color_code: '#00FF00'
+        },
+        {
+          color_name: 'Amarillo',
+          color_code: '#FFFF00'
+        },
+        {
+          color_name: 'Negro',
+          color_code: '#000000'
+        }
+      ]
+    });
+
+    // crear productos
+    const products = await prisma.product.createMany({
+      data: [
+        {
+          product_name: 'Smartphone X',
+          description: 'Teléfono inteligente de última generación',
+          is_active: true,
+          category_id: 1, // Electrónica
+          color_id: 1    // Rojo
+        },
+        {
+          product_name: 'Polera Básica',
+          description: 'Polera de algodón, talla M',
+          is_active: true,
+          category_id: 2, // Ropa
+          color_id: 2    // Azul
+        },
+        {
+          product_name: 'Audífonos Bluetooth',
+          description: 'Audífonos inalámbricos con cancelación de ruido',
+          is_active: true,
+          category_id: 1, // Electrónica
+          color_id: 5    // Negro
+        },
+        {
+          product_name: 'Chaqueta Impermeable',
+          description: 'Chaqueta resistente al agua, talla Ls',
+          is_active: true,
+          category_id: 2, // Ropa
+          color_id: 3    // Verde
+        }
+      ]
+    });
+
+    
   
-    console.log('Compañía, tienda y roles registrados correctamente');
-    // mostramos los datos creados
-    console.log('Compañía:', company);
-    console.log('Tienda:', store);
-    console.log('Roles:', roles);
+    console.log('Compañía y tienda registrados correctamente');
+
   }
   
   main()

@@ -20,11 +20,11 @@ routes.use('/auth', authRoutes);
 routes.use('/store', storeRoutes); 
 routes.use('/sale', saleRoutes);
 routes.use('/user', userRoutes);
-routes.use('/product', authenticateToken, productRoutes);
+routes.use('/product', authenticateToken,  productRoutes);
 routes.use('/company', companyRoutes);
-routes.use('/color', authenticateToken, colorRoutes);
-routes.use('/category', authenticateToken, categoryRoutes);
-routes.use('/storeproducts', authenticateToken, storeProductRoutes);
-routes.use('/saleitem', authenticateToken, saleItemRoutes);
+routes.use('/color', colorRoutes);
+routes.use('/category',  categoryRoutes);
+routes.use('/storeproducts',  storeProductRoutes);
+routes.use('/saleitem',  saleItemRoutes);
 
 export default routes;

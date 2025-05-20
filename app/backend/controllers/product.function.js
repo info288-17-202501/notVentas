@@ -46,13 +46,50 @@ export async function updateProduct(updateData) {
     }
 }
 
-// funcion para obtener una lista de productos creados
-export async function getProducts() {
-    try{
-        const products = await prisma.product.findMany();
+// funcion para obtener una lista de productos filtrados por texto (nombre, categoria, modelo)
+export async function getProducts({ search = '' } = {}) {
+    try {
+        const products = await prisma.product.findMany({
+            where: {
+                OR: [
+                    {
+                        product_name: {
+                            contains: search,
+                            mode: 'insensitive'
+                        }
+                    },
+                    {
+                        description: {
+                            contains: search,
+                            mode: 'insensitive'
+                        }
+                    },
+                    {
+                        category: {
+                            category_name: {
+                                contains: search,
+                                mode: 'insensitive'
+                            }
+                        }
+                    },
+                    {
+                        model: {
+                            model_name: {
+                                contains: search,
+                                mode: 'insensitive'
+                            }
+                        }
+                    }
+                ]
+            },
+            include: {
+                category: true,
+                model: true
+            }
+        });
         return products;
-    }catch(error){
-        throw new Error('Error connecting to the database')
+    } catch (error) {
+        throw new Error('Error connecting to the database');
     }
 }
 

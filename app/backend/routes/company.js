@@ -15,7 +15,7 @@ router.get('/', async (_, res) => {
 
 
 // Route to create a new company
-router.post('/create-company', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const companyData = req.body;
         const newCompany = await createCompany(companyData);
@@ -26,7 +26,7 @@ router.post('/create-company', async (req, res) => {
 });
 
 // Route to get a company by ID
-router.get('/company/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
         const companyId = parseInt(req.params.id, 10);
         const company = await getCompanyById({companyId});
@@ -40,7 +40,7 @@ router.get('/company/:id', async (req, res) => {
 });
 
 // Route to update a company by ID
-router.put('/update-company/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
     try {
         const companyId = parseInt(req.params.id, 10);
         const updatedData = req.body;
@@ -55,7 +55,7 @@ router.put('/update-company/:id', async (req, res) => {
 });
 
 // Route to delete a company by ID
-router.delete('/delete-company', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         await deleteCompany(req.body);
         res.status(200).json({ message: 'Company deleted successfully' });

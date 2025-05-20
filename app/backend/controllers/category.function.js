@@ -23,6 +23,32 @@ export async function getCategories() {
 }
 
 
+// Function to update a category
+export async function updateCategory({category_name, new_category_name, category_description}) {
+    if (!category_name) {
+        throw new Error('Category name is required');
+    }
+    await Validation.categoryMustExist(category_name)
+    try{
+        const data = {};
+        if (new_category_name) data.category_name = new_category_name;
+        if (category_description) data.category_description = category_description;
+
+        if (Object.keys(data).length === 0) {
+            throw new Error('No fields to update');
+        }
+
+        const updatedCategory = await prisma.category.update({
+            where: { category_name },
+            data
+        });
+        return updatedCategory;
+    }catch(error){
+        throw new Error(`Error updating category: ${error.message}`)
+    }
+}
+
+
 // Function to delete a category
 export async function deleteCategory({category_name}) {
     await Validation.categoryMustExist(category_name)
