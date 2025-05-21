@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation"; // Importa useRouter de Next.js
-import axios from "axios";
 import {login} from '../../api/auth'
 
 const Login = () => {
@@ -16,14 +15,12 @@ const Login = () => {
 
     try {
       const response = await login(email, contrasena); // Llama a la función de login
-      console.log("Respuesta de la API:", response); // Muestra la respuesta de la API
-      // Guarda el token en el localStorage
       const token = response.token; // Asegúrate de que la respuesta contenga el token
-      console.log("Token recibido:", token); // Muestra el token recibido
 
-      //Guarda el token en el localStorage
+      //Guarda el token y user en el localStorage
       localStorage.setItem("token", token);
-      // Redirige al usuario a la página protegida.
+      localStorage.setItem("user", JSON.stringify(response.user)); 
+
       router.push("/dashboard");
 
     } catch (err) {

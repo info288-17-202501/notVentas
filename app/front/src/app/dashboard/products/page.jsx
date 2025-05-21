@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ProductCard from "../../../components/ProductCard";
 const products = [
@@ -28,13 +28,20 @@ const products = [
 
 const CatalogPage = () => {
   const router = useRouter();
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
+    } else {
+      setIsVerified(true);
     }
   }, [router]);
+
+  if (!isVerified) {
+    return null; // O puedes mostrar un loader si prefieres
+  }
 
   return (
     <div className="p-8">

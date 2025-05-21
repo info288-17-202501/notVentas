@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import Navbar from "./components/layout/navbar";
-import Footer from "./components/layout/footer";
-import Banner from "./components/ui/banner";
+import Navbar from "../layout/navbar";
+import Footer from "../layout/footer";
+import Banner from "../components/ui/banner";
 
 function Page(){
 		return (
