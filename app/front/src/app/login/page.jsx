@@ -20,17 +20,21 @@ const Login = () => {
       //Guarda el token y user en el localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(response.user)); 
-
-      router.push("/dashboard");
-
-    } catch (err) {
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error); // Muestra el error retornado por la API
-      } else {
-        setError("Credenciales incorrectas o error del servidor");
+      if (response.user.role === "admin" || response.user.role === "sadmin") {
+        router.push("/dashboard");
       }
-      console.error(err);
+      else if (response.user.role === "seller"){
+        router.push("/dashboard");
+      }
     }
+    catch (err) {
+    if (err.response && err.response.data && err.response.data.error) {
+      setError(err.response.data.error); // Muestra el error retornado por la API
+    } else {
+      setError("Credenciales incorrectas o error del servidor");
+    }
+    console.error(err);
+  }
   };
 
   return (
