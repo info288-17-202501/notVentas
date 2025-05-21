@@ -47,51 +47,17 @@ export async function updateProduct(updateData) {
 }
 
 // funcion para obtener una lista de productos filtrados por texto (nombre, categoria, modelo)
-export async function getProducts({ search = '' } = {}) {
+export async function getProducts() {
     try {
-        const products = await prisma.product.findMany({
-            where: {
-                OR: [
-                    {
-                        product_name: {
-                            contains: search,
-                            mode: 'insensitive'
-                        }
-                    },
-                    {
-                        description: {
-                            contains: search,
-                            mode: 'insensitive'
-                        }
-                    },
-                    {
-                        category: {
-                            category_name: {
-                                contains: search,
-                                mode: 'insensitive'
-                            }
-                        }
-                    },
-                    {
-                        model: {
-                            model_name: {
-                                contains: search,
-                                mode: 'insensitive'
-                            }
-                        }
-                    }
-                ]
-            },
-            include: {
-                category: true,
-                model: true
-            }
-        });
+        const products = await prisma.product.findMany();
         return products;
     } catch (error) {
-        throw new Error('Error connecting to the database');
+        console.error('Error retrieving products:', error.message);
+        throw new Error('Error retrieving products from the database');
     }
 }
+
+
 
 // funcion para eliminar un producto
 export async function deleteProduct({product_id}) {
