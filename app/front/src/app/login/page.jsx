@@ -24,7 +24,7 @@ const Login = () => {
       //Guarda el token en el localStorage
       localStorage.setItem("token", token);
       // Redirige al usuario a la página protegida.
-      router.push("/admin");
+      router.push("/dashboard");
 
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {

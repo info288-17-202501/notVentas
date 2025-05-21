@@ -1,6 +1,6 @@
 import React from 'react';
-import Footer from '../components/layout/footer';
-import Navbar from '../components/layout/navbar';
+import Footer from '../../layout/footer';
+import Navbar from '../../layout/navbar';
 
 const AdminPage = () => {
     
