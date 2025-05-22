@@ -1,11 +1,10 @@
 import prisma  from '../db/client.js';
 
-
 // get companies
 export async function getCompanies() {
     try {
         const companies = await prisma.company.findMany({
-            orderBy: { company_name: 'asc' },
+            orderBy: { id: 'asc' },
         });
         return companies;
     } catch (error) {
@@ -14,20 +13,18 @@ export async function getCompanies() {
     }
 }
 
-
-
 // Create a new company
 export async function createCompany(data) {
     try {
         const newCompany = await prisma.company.create({
             data: {
-                company_name: data.company_name,
-                company_rut: data.company_rut,
+                name: data.name,
+                rut: data.rut,
                 is_active: data.is_active ?? true,
                 address_street: data.address_street,
                 address_city: data.address_city,
                 address_state: data.address_state,
-                address_zip: data.address_zip,
+                postal_code: data.postal_code,
             },
         });
         return newCompany;
@@ -41,7 +38,7 @@ export async function createCompany(data) {
 export async function getCompanyById(companyId) {
     try {
         const company = await prisma.company.findUnique({
-            where: { company_id: companyId },
+            where: { id: companyId },
         });
         return company;
     } catch (error) {
@@ -54,15 +51,15 @@ export async function getCompanyById(companyId) {
 export async function updateCompany(companyId, data) {
     try {
         const updatedCompany = await prisma.company.update({
-            where: { company_id: companyId },
+            where: { id: companyId },
             data: {
-                ...(data.company_name && { company_name: data.company_name }),
-                ...(data.company_rut && { company_rut: data.company_rut }),
+                ...(data.name && { name: data.name }),
+                ...(data.rut && { rut: data.rut }),
                 ...(data.is_active !== undefined && { is_active: data.is_active }),
                 ...(data.address_street && { address_street: data.address_street }),
                 ...(data.address_city && { address_city: data.address_city }),
                 ...(data.address_state && { address_state: data.address_state }),
-                ...(data.address_zip && { address_zip: data.address_zip }),
+                ...(data.postal_code && { postal_code: data.postal_code }),
             },
         });
         return updatedCompany;
@@ -73,26 +70,25 @@ export async function updateCompany(companyId, data) {
 }
 
 // Delete a company by ID
-export async function deleteCompany({company_id}) {
-    await Validation.companyExists(company_id);
+export async function deleteCompany({rut}) {
+    await Validation.companyExists(rut);
     try {
         const deletedCompany = await prisma.company.delete({
-            where: { company_id },
+            where: { rut },
         });
         return deletedCompany;
     } catch (error) {
-        console.error('Error deleting company:', error);
         throw new Error('Error in database connection');
     }
 }
 
 class Validation {
-    static async companyExists(company_id) {
+    static async companyExists(rut) {
         const company = await prisma.company.findUnique({
-                where: {company_id}
+                where: {rut}
         });
         if(!company){
-            throw new Error(`Company with ID ${company_id} does not exist`);
+            throw new Error(`Company with rut: ${rut}, does not exist`);
         }
     }
 }

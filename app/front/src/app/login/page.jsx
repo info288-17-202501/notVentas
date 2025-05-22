@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation"; // Importa useRouter de Next.js
-import axios from "axios";
 import {login} from '../../api/auth'
 
 const Login = () => {
@@ -16,24 +15,26 @@ const Login = () => {
 
     try {
       const response = await login(email, contrasena); // Llama a la función de login
-      console.log("Respuesta de la API:", response); // Muestra la respuesta de la API
-      // Guarda el token en el localStorage
       const token = response.token; // Asegúrate de que la respuesta contenga el token
-      console.log("Token recibido:", token); // Muestra el token recibido
 
-      //Guarda el token en el localStorage
+      //Guarda el token y user en el localStorage
       localStorage.setItem("token", token);
-      // Redirige al usuario a la página protegida.
-      router.push("/admin");
-
-    } catch (err) {
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error); // Muestra el error retornado por la API
-      } else {
-        setError("Credenciales incorrectas o error del servidor");
+      localStorage.setItem("user", JSON.stringify(response.user)); 
+      if (response.user.role === "admin" || response.user.role === "sadmin") {
+        router.push("/dashboard");
       }
-      console.error(err);
+      else if (response.user.role === "seller"){
+        router.push("/dashboard");
+      }
     }
+    catch (err) {
+    if (err.response && err.response.data && err.response.data.error) {
+      setError(err.response.data.error); // Muestra el error retornado por la API
+    } else {
+      setError("Credenciales incorrectas o error del servidor");
+    }
+    console.error(err);
+  }
   };
 
   return (

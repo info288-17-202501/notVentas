@@ -1,8 +1,6 @@
 'use client';
 import { useState } from 'react';
 
-
-
 export default function RegisterCompany() {
     const [formData, setFormData] = useState({
         companyName: '',

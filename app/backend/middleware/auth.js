@@ -17,8 +17,17 @@ export async function createSessionToken(user) {
         id: user.id,
         username: user.username,
         email: user.email,
-        role_id: user.role_id
+        role: user.role
     };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
     return token;
+}
+
+export function authorizeRoles(...allowedRoles) {
+    return (req, res, next) => {
+        if (!allowedRoles.includes(req.user.role)) {
+            return res.status(403).json({ error: 'Access denied: insufficient privileges' });
+        }
+        next();
+    };
 }

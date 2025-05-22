@@ -32,7 +32,8 @@ export async function deleteSaleItem({ sale_id, product_id }) {
     try {
         const deleted = await prisma.saleItem.delete({
             where: {
-                sale_id_product_id: { sale_id, product_id }
+                sale_id: sale_id,
+                product_id: product_id
             }
         });
         return deleted;

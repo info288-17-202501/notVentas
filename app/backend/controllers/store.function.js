@@ -1,15 +1,15 @@
 import prisma from '../db/client.js';
 
-export async function createStore({ store_name, coord_latitude, coord_longitude, address_street, address_city, address_state, address_zip, company_id}) {
+export async function createStore({ name, coord_latitude, coord_longitude, address_street, address_city, address_state, postal_code, company_id}) {
     const newStore = await prisma.store.create({
         data: {
-            store_name,
+            name,
             coord_latitude,
             coord_longitude,
             address_street,
             address_city,
             address_state,
-            address_zip,
+            postal_code,
             company_id
         }
     });
@@ -21,42 +21,42 @@ export async function getStores() {
     return stores;
 }
 
-export async function getStoreById(store_id) {
-    StoreValidation.validateStoreId(store_id);
+export async function getStoreById(id) {
+    StoreValidation.validateStoreId(id);
 
     const store = await prisma.store.findUnique({
-        where: { store_id }
+        where: { id }
     });
     return store;
 }
 
 export async function updateStore(updateData) {
-    const { store_id, store_name, coord_latitude, coord_longitude, address_street, address_city, address_state, address_zip } = updateData;
+    const { id, name, coord_latitude, coord_longitude, address_street, address_city, address_state, postal_code } = updateData;
 
-    if (!store_id) {
+    if (!id) {
         throw new Error('Store ID is required to update store');
     }
 
     const updatedStore = await prisma.store.update({
-        where: { store_id },
+        where: { id },
         data: {
-            ...(store_name && { store_name }),
+            ...(name && { name }),
             ...(coord_latitude && { coord_latitude }),
             ...(coord_longitude && { coord_longitude }),
             ...(address_street && { address_street }),
             ...(address_city && { address_city }),
             ...(address_state && { address_state }),
-            ...(address_zip && { address_zip })
+            ...(postal_code && { postal_code })
         }
     });
     return updatedStore;
 }
 
-export async function deleteStore({ store_id }) {
-    StoreValidation.validateStoreId(store_id);
+export async function deleteStore({ id }) {
+    StoreValidation.validateStoreId(id);
 
     const deletedStore = await prisma.store.delete({
-        where: { store_id }
+        where: { id }
     });
     return deletedStore;
 }
@@ -64,14 +64,14 @@ export async function deleteStore({ store_id }) {
 
 // Validation class for store data
 class StoreValidation {
-    static validateStoreName(store_name) {
-        if (!store_name || typeof store_name !== 'string') {
+    static validateStoreName(name) {
+        if (!name || typeof name !== 'string') {
             throw new Error('Invalid store name');
         }
     }
 
-    static validateStoreId(store_id) {
-        if (!store_id || typeof store_id !== 'number') {
+    static validateStoreId(id) {
+        if (!id || typeof id !== 'number') {
             throw new Error('Invalid store ID');
         }
     }
@@ -82,8 +82,8 @@ class StoreValidation {
         }
     }
 
-    static validateAddress(address_street, address_city, address_state, address_zip) {
-        if (!address_street || !address_city || !address_state || !address_zip) {
+    static validateAddress(address_street, address_city, address_state, postal_code) {
+        if (!address_street || !address_city || !address_state || !postal_code) {
             throw new Error('Invalid address');
         }
     }

@@ -15,7 +15,7 @@ router.get('/', async (req, res) =>{
 
 
 // Editar usuario (password, username)
-router.post('/edit', async (req, res) => {
+router.put('/', async (req, res) => {
     try{
         const upUser = await updateUser(req.body);
         res.status(200).json({message: "User updated successfull"});
@@ -27,7 +27,7 @@ router.post('/edit', async (req, res) => {
 
 
 // elimina usuario (cambiar valor a is_active)
-router.post('/delete', async (req, res) => {
+router.delete('/', async (req, res) => {
     try{
         const delUser = await deleteUser(req.body);
         res.status(201).json({message: "User deleted correctly"});

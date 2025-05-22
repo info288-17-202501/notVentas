@@ -1,14 +1,17 @@
 import bcrypt from 'bcryptjs';
 import prisma  from '../db/client.js';
 
-export async function createUser( { email, password, name, rut, company_id, role_id }){
+export async function createUser( { email, password, name, rut, company_id, role }){
     Validation.email(email);
     Validation.password(password);
+    Validation.role(role);
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await prisma.user.create({
-       data: { email, password: hashedPassword, rut, name, role_id, company_id }
+        data: { email, password: hashedPassword, rut, name, role, company_id }
     });
     return newUser;
+   
 } 
 
 export async function getUsers() {
@@ -41,7 +44,7 @@ export async function login({ email, password }) {
     return publicUser;
 }
 
-export async function updateUser({ email, username, password, role_id }) {
+export async function updateUser({ email, username, password, role }) {
     if (!email) {
         throw new Error('Email is required to update user');
     }
@@ -57,8 +60,8 @@ export async function updateUser({ email, username, password, role_id }) {
         updateData.password = await bcrypt.hash(password, 10);
     }
 
-    if (role_id) {
-        updateData.role_id = role_id;
+    if (role) {
+        updateData.role = role;
     }
 
     const updatedUser = await prisma.user.update({
@@ -84,6 +87,12 @@ export async function deleteUser({ email, password }) {
 }
 
 class Validation{
+    static role(role){
+        const validRoles = ['sadmin', 'admin', 'seller'];
+        if (typeof role !== 'string' || !validRoles.includes(role)) {
+            throw new Error('Invalid role');
+        }
+    }
     static email(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (typeof email !== 'string' || !emailRegex.test(email)) {

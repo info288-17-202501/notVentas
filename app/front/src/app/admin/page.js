@@ -1,11 +1,12 @@
 import React from 'react';
+import Footer from '../../layout/footer';
+import Navbar from '../../layout/navbar';
 
 const AdminPage = () => {
+    
     return (
         <div style={styles.container}>
-            <header style={styles.header}>
-                <h1 style={styles.title}>Panel de Administración</h1>
-            </header>
+            <Navbar />
             <main style={styles.main}>
                 <section style={styles.card}>
                     <h2>Gestión de Usuarios</h2>
@@ -23,9 +24,7 @@ const AdminPage = () => {
                     <button style={styles.button}>Abrir Configuración</button>
                 </section>
             </main>
-            <footer style={styles.footer}>
-                <p>© 2023 Admin Panel. Todos los derechos reservados.</p>
-            </footer>
+           <Footer />
         </div>
     );
 };

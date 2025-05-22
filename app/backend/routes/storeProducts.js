@@ -4,7 +4,7 @@ import { addProductToStore, updateProductInStore, getStoreProducts, deleteStoreP
 const router = express.Router();
 
 // Agregar producto a tienda
-router.post('/add', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const storeProduct = await addProductToStore(req.body);
         res.status(201).json({ message: "Product added to store", storeProduct });
@@ -14,7 +14,7 @@ router.post('/add', async (req, res) => {
 });
 
 // Actualizar cantidad de producto en tienda
-router.put('/update', async (req, res) => {
+router.put('/', async (req, res) => {
     try {
         const updated = await updateProductInStore(req.body);
         res.status(200).json({ message: "Store product updated", updated });
@@ -34,7 +34,7 @@ router.get('/:store_id', async (req, res) => {
 });
 
 // Eliminar producto de tienda
-router.delete('/delete', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         const deleted = await deleteStoreProduct(req.body);
         res.status(200).json({ message: "Product deleted from store", deleted });

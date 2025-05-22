@@ -1,17 +1,17 @@
 import prisma  from '../db/client.js';
 
-
 // crea un producto
-export async function createProduct({product_name, description, category_id, color_id}) {
+export async function createProduct({name, description, price, category_id, color_id}) {
     await Validation.color(color_id);
     await Validation.category(category_id);
 
     try{
         const newProduct = await prisma.product.create({
             data: {
-                product_name,
+                name,
                 description,
                 category_id,
+                price,
                 color_id
             }
         });
@@ -23,18 +23,18 @@ export async function createProduct({product_name, description, category_id, col
 
 // actualiza un producto 
 export async function updateProduct(updateData) {
-    const { product_id, product_name, description, category_id, color_id } = updateData;
+    const { id, name, description, category_id, color_id } = updateData;
 
-    await Validation.product(product_id);
+    await Validation.product(id);
 
     if (category_id !== undefined) await Validation.category(category_id);
     if (color_id !== undefined) await Validation.color(color_id);
 
     try {
         const updatedProduct = await prisma.product.update({
-            where: { product_id },
+            where: { id },
             data: {
-                ...(product_name !== undefined && { product_name }),
+                ...(name !== undefined && { name }),
                 ...(description !== undefined && { description }),
                 ...(category_id !== undefined && { category_id }),
                 ...(color_id !== undefined && { color_id })
@@ -46,13 +46,13 @@ export async function updateProduct(updateData) {
     }
 }
 
-// funcion para obtener una lista de productos creados
+// funcion para obtener una lista de productos filtrados por texto (nombre, categoria, modelo)
 export async function getProducts() {
-    try{
+    try {
         const products = await prisma.product.findMany();
         return products;
-    }catch(error){
-        throw new Error('Error connecting to the database')
+    } catch (error) {
+        throw new Error('Error retrieving products from the database');
     }
 }
 
@@ -61,7 +61,7 @@ export async function deleteProduct({product_id}) {
     await Validation.product(product_id)
     try{
         const delProduct = await prisma.product.delete({
-            where : {product_id}
+            where : {id : product_id}
         });       
         return delProduct;
     }catch(error){
@@ -72,7 +72,7 @@ export async function deleteProduct({product_id}) {
 class Validation{
     static async color(color_id){
         const existingColor = await prisma.color.findUnique({ 
-            where: { color_id }
+            where: { id: color_id }
         });
         if (!existingColor) {
         throw new Error('Color not found');
@@ -80,13 +80,13 @@ class Validation{
     }
 
     static async category(category_id){
-        const existingCategory = await prisma.category.findUnique({ where: { category_id } });
+        const existingCategory = await prisma.category.findUnique({ where: { id: category_id } });
         if (!existingCategory) {
             throw new Error('Category not found');
         }
     }
     static async product(product_id){
-        const existingProducto = await prisma.product.findUnique({ where: { product_id } });
+        const existingProducto = await prisma.product.findUnique({ where: { id: product_id } });
         if (!existingProducto) {
             throw new Error('Product not found');
         }

@@ -1,9 +1,7 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Navbar from '../../components/layout/navbar';
-import ProductCard from '../../components/ui/productCard';
-
+import ProductCard from "../../../components/ProductCard";
 const products = [
   {
     id: 1,
@@ -30,25 +28,23 @@ const products = [
 
 const CatalogPage = () => {
   const router = useRouter();
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
-    // Si no hay token, redirige al login
     if (!token) {
       router.push("/login");
+    } else {
+      setIsVerified(true);
     }
-    // Opcional: valida el token con la API
-    // fetch("/api/validate-token", { headers: { Authorization: `Bearer ${token}` } })
-    //   .then((res) => {
-    //     if (!res.ok) throw new Error("Token inválido");
-    //   })
-    //   .catch(() => router.push("/login"));
   }, [router]);
+
+  if (!isVerified) {
+    return null; // O puedes mostrar un loader si prefieres
+  }
 
   return (
     <div className="p-8">
-      <Navbar />
       <h1 className="text-3xl font-bold mb-6 text-green-700 text-center">Catálogo Cubre Mochilas</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {products.map((product) => (
