@@ -30,7 +30,7 @@ export async function getSaleById(sale_id) {
     SaleValidation.validateSaleId(sale_id);
 
     const sale = await prisma.sale.findUnique({
-        where: { sale_id }
+        where: {id: sale_id }
     });
     return sale;
 }
@@ -41,7 +41,7 @@ export async function updateSale(updateData) {
     SaleValidation.validateSaleId(sale_id);
 
     const updatedSale = await prisma.sale.update({
-        where: { sale_id },
+        where: { id: sale_id },
         data: {
             ...(number && { number }),
             ...(date && { date }),
@@ -57,16 +57,19 @@ export async function deleteSale({ sale_id }) {
     SaleValidation.validateSaleId(sale_id);
 
     const deletedSale = await prisma.sale.delete({
-        where: { sale_id }
+        where: { id: sale_id }
     });
     return deletedSale;
 }
 
 
 class SaleValidation {
-    static validateSaleId(sale_id) {
-        if (!sale_id) {
-            throw new Error('Sale ID is required');
+    static async validateSaleId(sale_id) {
+        const sale = await prisma.sale.findUnique({
+            where: { id: sale_id }
+        });
+        if (!sale) {
+            throw new Error('Invalid sale ID');
         }
     }
 }

@@ -78,7 +78,6 @@ export async function deleteCompany({rut}) {
         });
         return deletedCompany;
     } catch (error) {
-        console.error('Error deleting company:', error);
         throw new Error('Error in database connection');
     }
 }

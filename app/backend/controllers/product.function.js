@@ -1,7 +1,7 @@
 import prisma  from '../db/client.js';
 
 // crea un producto
-export async function createProduct({name, description, category_id, color_id}) {
+export async function createProduct({name, description, price, category_id, color_id}) {
     await Validation.color(color_id);
     await Validation.category(category_id);
 
@@ -11,6 +11,7 @@ export async function createProduct({name, description, category_id, color_id}) 
                 name,
                 description,
                 category_id,
+                price,
                 color_id
             }
         });
@@ -51,17 +52,16 @@ export async function getProducts() {
         const products = await prisma.product.findMany();
         return products;
     } catch (error) {
-        console.error('Error retrieving products:', error.message);
         throw new Error('Error retrieving products from the database');
     }
 }
 
 // funcion para eliminar un producto
-export async function deleteProduct({id}) {
-    await Validation.product(id)
+export async function deleteProduct({product_id}) {
+    await Validation.product(product_id)
     try{
         const delProduct = await prisma.product.delete({
-            where : {id}
+            where : {id : product_id}
         });       
         return delProduct;
     }catch(error){
@@ -72,7 +72,7 @@ export async function deleteProduct({id}) {
 class Validation{
     static async color(color_id){
         const existingColor = await prisma.color.findUnique({ 
-            where: { color_id }
+            where: { id: color_id }
         });
         if (!existingColor) {
         throw new Error('Color not found');
@@ -80,13 +80,13 @@ class Validation{
     }
 
     static async category(category_id){
-        const existingCategory = await prisma.category.findUnique({ where: { category_id } });
+        const existingCategory = await prisma.category.findUnique({ where: { id: category_id } });
         if (!existingCategory) {
             throw new Error('Category not found');
         }
     }
-    static async product(id){
-        const existingProducto = await prisma.product.findUnique({ where: { id } });
+    static async product(product_id){
+        const existingProducto = await prisma.product.findUnique({ where: { id: product_id } });
         if (!existingProducto) {
             throw new Error('Product not found');
         }
