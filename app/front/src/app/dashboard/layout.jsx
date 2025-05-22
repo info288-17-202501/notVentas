@@ -17,7 +17,7 @@ export default function DashboardLayout({ children }) {
         <ul className="list-none p-0 mt-8 flex flex-col gap-2">
           <li><Link href="/dashboard/sales" className="block text-white no-underline font-medium text-base py-2 px-3 rounded-md transition-colors hover:bg-white/10">Ventas</Link></li>
           
-          <li><Link href="/dashboard/products" className="block text-white no-underline font-medium text-base py-2 px-3 rounded-md transition-colors hover:bg-white/10">Productos</Link></li>
+          <li><Link href="/dashboard/stock" className="block text-white no-underline font-medium text-base py-2 px-3 rounded-md transition-colors hover:bg-white/10">Productos</Link></li>
            <li><Link href="/admin" className="block text-white no-underline font-medium text-base py-2 px-3 rounded-md transition-colors hover:bg-white/10">Admin</Link></li>
         </ul>
         <div className="mt-auto text-xs opacity-70">
