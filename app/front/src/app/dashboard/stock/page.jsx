@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 const tableStyle = {
     width: '100%',
     borderCollapse: 'collapse',
-    background: '#f9f9f9',
     boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
     marginTop: '24px',
     borderRadius: '8px',
@@ -12,7 +11,6 @@ const tableStyle = {
 };
 
 const thStyle = {
-    background: '#1976d2',
     color: '#fff',
     padding: '12px',
     textAlign: 'left',

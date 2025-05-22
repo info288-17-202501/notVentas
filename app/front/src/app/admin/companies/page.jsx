@@ -29,7 +29,7 @@ const CompaniesPage = () => {
 
     return (
         <div>
-            <h1>Compañías</h1>
+            <h1 style={{fontSize: '15px'}}>Información de la empresa</h1>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
                 {companies.map((company) => (
                     <div
@@ -44,10 +44,14 @@ const CompaniesPage = () => {
                         }}
                     >
                         <h2 style={{ margin: '0 0 0.5rem 0' }}>{company.company_name}</h2>
-                        <p><strong>RUT:</strong> {company.company_rut}</p>
+                        <p><strong>Nombre empresa:</strong> {company.name}</p>
+                        <p><strong>RUT:</strong> {company.rut}</p>
                         <p>
                             <strong>Dirección:</strong><br />
                             {company.address_street}, {company.address_city}, {company.address_state}, {company.address_zip}
+                        </p>
+                        <p>
+                            <strong>Código Postal</strong>: {company.postal_code}
                         </p>
                         <p>
                             <strong>Estado:</strong>{' '}
