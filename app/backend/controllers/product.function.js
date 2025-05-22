@@ -1,15 +1,14 @@
 import prisma  from '../db/client.js';
 
-
 // crea un producto
-export async function createProduct({product_name, description, category_id, color_id}) {
+export async function createProduct({name, description, category_id, color_id}) {
     await Validation.color(color_id);
     await Validation.category(category_id);
 
     try{
         const newProduct = await prisma.product.create({
             data: {
-                product_name,
+                name,
                 description,
                 category_id,
                 color_id
@@ -23,18 +22,18 @@ export async function createProduct({product_name, description, category_id, col
 
 // actualiza un producto 
 export async function updateProduct(updateData) {
-    const { product_id, product_name, description, category_id, color_id } = updateData;
+    const { id, name, description, category_id, color_id } = updateData;
 
-    await Validation.product(product_id);
+    await Validation.product(id);
 
     if (category_id !== undefined) await Validation.category(category_id);
     if (color_id !== undefined) await Validation.color(color_id);
 
     try {
         const updatedProduct = await prisma.product.update({
-            where: { product_id },
+            where: { id },
             data: {
-                ...(product_name !== undefined && { product_name }),
+                ...(name !== undefined && { name }),
                 ...(description !== undefined && { description }),
                 ...(category_id !== undefined && { category_id }),
                 ...(color_id !== undefined && { color_id })
@@ -57,14 +56,12 @@ export async function getProducts() {
     }
 }
 
-
-
 // funcion para eliminar un producto
-export async function deleteProduct({product_id}) {
-    await Validation.product(product_id)
+export async function deleteProduct({id}) {
+    await Validation.product(id)
     try{
         const delProduct = await prisma.product.delete({
-            where : {product_id}
+            where : {id}
         });       
         return delProduct;
     }catch(error){
@@ -88,8 +85,8 @@ class Validation{
             throw new Error('Category not found');
         }
     }
-    static async product(product_id){
-        const existingProducto = await prisma.product.findUnique({ where: { product_id } });
+    static async product(id){
+        const existingProducto = await prisma.product.findUnique({ where: { id } });
         if (!existingProducto) {
             throw new Error('Product not found');
         }

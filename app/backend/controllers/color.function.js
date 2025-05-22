@@ -1,11 +1,11 @@
 import prisma  from '../db/client.js';
 
 // función para crear color
-export async function createColor({color_name, color_code}) {
+export async function createColor({name, code}) {
 
-    await Validation.colorDoesNotExist(color_code) //Valida que solo exista un color
+    await Validation.colorDoesNotExist(code) //Valida que solo exista un color
     try{
-        const newColor = await prisma.color.create({data: {color_name, color_code}});
+        const newColor = await prisma.color.create({data: {name, code}});
         return newColor;
     }catch(error){
         throw new Error('Error connecting to the database')
@@ -23,22 +23,22 @@ export async function getColor(){
 }
 
 class Validation {
-    static async checkColorExistence(color_code) {
-        const existingColor = await prisma.color.findFirst({ where: { color_code } });
+    static async checkColorExistence(code) {
+        const existingColor = await prisma.color.findFirst({ where: { code } });
         return existingColor;
     }
 
     // Valida que NO exista (para crear)
-    static async colorDoesNotExist(color_code) {
-        const existingColor = await this.checkColorExistence(color_code);
+    static async colorDoesNotExist(code) {
+        const existingColor = await this.checkColorExistence(code);
         if (existingColor) {
             throw new Error('This color already exists');
         }
     }
 
     // Valida que SI exista (para eliminar o editar)
-    static async categoryMustExist(color_code) {
-        const existingColor = await this.checkColorExistence(color_code);
+    static async categoryMustExist(code) {
+        const existingColor = await this.checkColorExistence(code);
         if (!existingColor) {
             throw new Error('This color does not exist');
         }

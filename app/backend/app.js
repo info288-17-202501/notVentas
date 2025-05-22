@@ -1,3 +1,4 @@
+// app.js
 import 'dotenv/config';
 import express, { json } from 'express';
 import routes from './routes/index.js';
@@ -6,33 +7,27 @@ import ErrorHandler from './middleware/errorHandler.js';
 import cors from 'cors';
 
 const corsOptions = {
-    origin: '*', // Permitir todas las solicitudes de cualquier origen
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
-    AccessControlAllowCredentials: '*', // Permitir todos los orígenes
-    allowedHeaders: ['Content-Type', 'Authorization', 'Body'], // Encabezados permitidos
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    AccessControlAllowCredentials: '*',
+    allowedHeaders: ['Content-Type', 'Authorization', 'Body'],
 };
 
 const app = express();
 
-app.use(json()); // Middleware para parsear JSON
+app.use(json());
 app.use(cors(corsOptions));
 app.use(LoggerMiddleware);
 
-// Usar todas las rutas definidas en /routes
 app.use('/api', routes);
 
-// Ruta base
-app.get('/',(req, res) => {
+app.get('/', (req, res) => {
     res.send(`
         <h1>Developing NotVentas API</h1>    
         <h3>Hola</h3>
     `);
 });
 
-// Manejo de errores al final
 app.use(ErrorHandler);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`App running at http://localhost:${PORT}`);
-});
+export default app; 

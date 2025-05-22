@@ -20,7 +20,7 @@ routes.use('/auth', authRoutes);
 routes.use('/store', storeRoutes); 
 routes.use('/sale', saleRoutes);
 routes.use('/user', userRoutes);
-routes.use('/product', authenticateToken,  productRoutes);
+routes.use('/product',  productRoutes);
 routes.use('/company', companyRoutes);
 routes.use('/color', colorRoutes);
 routes.use('/category',  categoryRoutes);

@@ -6,7 +6,7 @@ import { authorizeRoles } from '../middleware/auth.js';
 const router = express.Router();
 
 // Crear producto
-router.post('/', authorizeRoles('admin', 'sadmin'), async (req, res) => {
+router.post('/', async (req, res) => {
     try{
         const newProduct = await createProduct(req.body);
         res.status(201).json({message: 'Product created successfull',newProduct});
