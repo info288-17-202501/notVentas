@@ -97,42 +97,70 @@ async function main() {
     negro = await prisma.color.create({ data: { name: 'Negro', code: '#000000' } })
   }
 
-  // Productos
-  const [licuadora, polera, microondas] = await Promise.all([
-    prisma.product.create({
-      data: {
-        name: 'Licuadora X100',
-        description: 'Potente y silenciosa.',
-        price: 59990,
-        category: { connect: { id: catElectro.id } },
-        brand: { connect: { id: marcaX.id } },
-        colors: { create: [{ color: { connect: { id: rojo.id } } }] },
-        storeProducts: { create: { store: { connect: { id: store.id } }, quantity: 10 } },
+const [licuadora, polera, microondas] = await Promise.all([
+  prisma.product.create({
+    data: {
+      name: 'Licuadora X100',
+      description: 'Potente y silenciosa.',
+      price: 59990,
+      category: { connect: { id: catElectro.id } },
+      brand: { connect: { id: marcaX.id } },
+      colors: {
+        create: [
+          { color: { connect: { id: rojo.id } } }
+        ]
       },
-    }),
-    prisma.product.create({
-      data: {
-        name: 'Polera Azul',
-        description: '100% algodón',
-        price: 14990,
-        category: { connect: { id: catRopa.id } },
-        brand: { connect: { id: marcaY.id } },
-        colors: { create: [{ color: { connect: { id: azul.id } } }] },
-        storeProducts: { create: { store: { connect: { id: store.id } }, quantity: 20 } },
+      storeProducts: {
+        create: {
+          store: { connect: { id: store.id } },
+          quantity: 10
+        }
+      }
+    }
+  }),
+
+  prisma.product.create({
+    data: {
+      name: 'Polera Azul',
+      description: '100% algodón',
+      price: 14990,
+      category: { connect: { id: catRopa.id } },
+      brand: { connect: { id: marcaY.id } },
+      colors: {
+        create: [
+          { color: { connect: { id: azul.id } } }
+        ]
       },
-    }),
-    prisma.product.create({
-      data: {
-        name: 'Microondas 800W',
-        description: 'Compacto y eficiente.',
-        price: 89990,
-        category: { connect: { id: catElectro.id } },
-        brand: { connect: { id: marcaX.id } },
-        colors: { create: [{ color: { connect: { id: negro.id } } }] },
-        storeProducts: { create: { store: { connect: { id: store.id } }, quantity: 5 } },
+      storeProducts: {
+        create: {
+          store: { connect: { id: store.id } },
+          quantity: 20
+        }
+      }
+    }
+  }),
+
+  prisma.product.create({
+    data: {
+      name: 'Microondas 800W',
+      description: 'Compacto y eficiente.',
+      price: 89990,
+      category: { connect: { id: catElectro.id } },
+      brand: { connect: { id: marcaX.id } },
+      colors: {
+        create: [
+          { color: { connect: { id: negro.id } } }
+        ]
       },
-    }),
-  ])
+      storeProducts: {
+        create: {
+          store: { connect: { id: store.id } },
+          quantity: 5
+        }
+      }
+    }
+  })
+]);
 
   // Venta simulada
   const sale = await prisma.sale.create({
