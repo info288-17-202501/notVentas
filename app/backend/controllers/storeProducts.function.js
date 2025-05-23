@@ -37,7 +37,6 @@ export async function addProductToStore({ store_id, product_id, colors }) {
 
     return results;
   } catch (error) {
-    console.error(error);
     throw new Error('Error adding product(s) to store');
   }
 }
@@ -63,7 +62,6 @@ export async function updateProductInStore({ store_id, product_id, colors }) {
         }
         return results;
     } catch (error) {
-        console.error(error);
         throw new Error('Error updating product in store');
     }
 }
@@ -103,21 +101,18 @@ export async function getStoreProducts(store_id) {
 
         return Object.values(grouped);
     } catch (error) {
-        console.error(error);
         throw new Error('Error fetching store products');
     }
 }
 
 
-export async function deleteStoreProduct({ store_id, product_id, color_id }) {
-    try {
-        const deleted = await prisma.storeProduct.delete({
-            where: {
-                store_id_product_id_color_id: { store_id, product_id, color_id }
-            }
-        });
-        return deleted;
-    } catch (error) {
-        throw new Error('Error deleting store product');
-    }
+export async function deleteStoreProduct({ store_id, product_id }) {
+  try {
+    const deleted = await prisma.storeProduct.deleteMany({
+      where: { store_id, product_id }
+    });
+    return deleted;
+  } catch (error) {
+    throw new Error('Error deleting product from store');
+  }
 }
