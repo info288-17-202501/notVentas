@@ -82,6 +82,7 @@ model Color {
   code  String  @unique
 
   products ProductColor[] 
+  storeProducts StoreProduct[]
 
 }
 
@@ -127,10 +128,12 @@ model Image {
 model StoreProduct {
   store_id   Int
   product_id Int
+  color_id   Int?
   quantity  Int    @default(0)
 
   store     Store   @relation(fields: [store_id], references: [id])
   product   Product @relation(fields: [product_id], references: [id])
+  color     Color?  @relation(fields: [color_id], references: [id])
 
   @@id([store_id, product_id])
 }

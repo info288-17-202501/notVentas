@@ -1,7 +1,7 @@
 import prisma from "../db/client.js";
 
 export async function createSale(data) {
-    const { number, store_id, user_id, total } = data; 
+    const { number, store_id, user_id, total, Items } = data; 
    
     let date = new Date().toISOString(); // fecha actual en formato ISO 8601 (tipo datetime)
     try {
