@@ -46,30 +46,39 @@ export async function updateProduct(updateData) {
     }
 }
 
-// funcion para obtener una lista de productos filtrados por texto (nombre, categoria, modelo)
 export async function getProducts() {
-    try {
-        const products = await prisma.product.findMany({
-            include: {
-                category: {
-                    select: { name: true }
-                },
-                color: {
-                    select: { name: true, code: true }
-                }
+  try {
+    const products = await prisma.product.findMany({
+      include: {
+        brand: {
+          select: { name: true }
+        },
+        category: {
+          select: { name: true }
+        },
+        colors: {
+          include: {
+            color: {
+              select: {
+                name: true,
+                code: true
+              }
             }
-        });
+          }
+        }
+      }
+    });
 
-        // Map to return category and color info as flat fields
-        return products.map(product => ({
-            ...product,
-            category: product.category?.name,
-            color: product.color ? { name: product.color.name, code: product.color.code } : null
-        }));
-    } catch (error) {
-        throw new Error('Error retrieving products from the database');
-    }
+    return products.map(product => ({
+      ...product,
+      category: product.category?.name,
+      colors: product.colors.map(pc => pc.color) // extrae solo el color de cada ProductColor
+    }));
+  } catch (error) {
+    throw new Error('Error retrieving products from the database');
+  }
 }
+
 
 // funcion para eliminar un producto
 export async function deleteProduct({product_id}) {
