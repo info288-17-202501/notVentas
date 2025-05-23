@@ -1,7 +1,7 @@
 // app/cart/page.tsx
 'use client';
 
-import { useCartStore } from '@/store/cartStore';
+import { useCartStore } from '../../store/cartStore';
 
 export default function CartPage() {
   const { items, removeFromCart, clearCart } = useCartStore();

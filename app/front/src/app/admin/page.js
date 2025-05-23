@@ -7,23 +7,7 @@ const AdminPage = () => {
     return (
         <div style={styles.container}>
             <Navbar />
-            <main style={styles.main}>
-                <section style={styles.card}>
-                    <h2>Gestión de Usuarios</h2>
-                    <p>Administra los usuarios de la plataforma.</p>
-                    <button style={styles.button}>Ir a Usuarios</button>
-                </section>
-                <section style={styles.card}>
-                    <h2>Estadísticas</h2>
-                    <p>Consulta las estadísticas de uso.</p>
-                    <button style={styles.button}>Ver Estadísticas</button>
-                </section>
-                <section style={styles.card}>
-                    <h2>Configuración</h2>
-                    <p>Ajusta las configuraciones del sistema.</p>
-                    <button style={styles.button}>Abrir Configuración</button>
-                </section>
-            </main>
+            
            <Footer />
         </div>
     );

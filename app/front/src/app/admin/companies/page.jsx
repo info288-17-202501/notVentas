@@ -1,20 +1,17 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-
+import { getCompanies } from '../../../api/company.js'; // Asegúrate de que la ruta sea correcta
 
 const CompaniesPage = () => {
     const [companies, setCompanies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    
     useEffect(() => {
         const fetchCompanies = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/company');
-                if (!response.ok) throw new Error('Error al obtener información de la empresa');
-                const data = await response.json();
-                console.log("Respuesta de la API:", data); // Muestra la respuesta de la API
-                setCompanies(data);
+                const company = await getCompanies();
+                setCompanies(company);
             } catch (err) {
                 setError(err.message);
             } finally {

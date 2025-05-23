@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import ProductCard from '../../../components/ProductCard1';
 
 const tableStyle = {
     width: '100%',
@@ -54,37 +55,11 @@ const ProductList = () => {
     return (
         <div>
             <h1>Lista de Productos</h1>
-            <table style={tableStyle}>
-                <thead>
-                    <tr>
-                        <th style={thStyle}>ID</th>
-                        <th style={thStyle}>Nombre</th>
-                        <th style={thStyle}>Descripción</th>
-                        <th style={thStyle}>Precio</th>
-                        <th style={thStyle}>Activo</th>
-                        <th style={thStyle}>ID Categoría</th>
-                        <th style={thStyle}>ID Color</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {products.map((prod, idx) => (
-                        <tr
-                            key={prod.id}
-                            style={hoveredRow === idx ? trHoverStyle : {}}
-                            onMouseEnter={() => setHoveredRow(idx)}
-                            onMouseLeave={() => setHoveredRow(null)}
-                        >
-                            <td style={tdStyle}>{prod.id}</td>
-                            <td style={tdStyle}>{prod.name}</td>
-                            <td style={tdStyle}>{prod.description}</td>
-                            <td style={tdStyle}>${prod.price}</td>
-                            <td style={tdStyle}>{prod.is_active ? 'Sí' : 'No'}</td>
-                            <td style={tdStyle}>{prod.category_id}</td>
-                            <td style={tdStyle}>{prod.color_id}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
+                {products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                ))}
+            </div>
         </div>
     );
 };
