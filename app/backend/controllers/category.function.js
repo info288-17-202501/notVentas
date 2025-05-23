@@ -2,8 +2,11 @@ import prisma  from '../db/client.js'; // Import the Prisma client instance
 
 // Function to create a new category
 export async function createCategory({name}) {
-    await Validation.categoryDoesNotExist(name)
+    
     try {
+        const existingCategory = await Validation.checkCategoryExistence(name);
+        console.log("existe la categoria? ",existingCategory)
+        if (existingCategory) return existingCategory;
         const newCategory = await prisma.category.create({data: {name}});
         return newCategory;
         
@@ -63,8 +66,8 @@ export async function deleteCategory({name}) {
 }
  
 class Validation {
-    static async checkCategoryExistence(name) {
-        const existingCategory = await prisma.category.findUnique({ where: { name } });
+    static async checkCategoryExistence(name_category) {
+        const existingCategory = await prisma.category.findUnique({ where: { name: name_category } });
         return existingCategory;
     }
 

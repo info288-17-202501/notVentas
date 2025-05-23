@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
 })
 
 // Actualizar producto
-router.put('/', authorizeRoles('admin', 'sadmin'), async (req, res) => {
+router.put('/', async (req, res) => {
     try{
         const upProduct = await updateProduct(req.body);
         res.status(200).json({message: 'Product updated', upProduct});
@@ -36,7 +36,7 @@ router.get('/', async(req, res) => {
 })
 
 // Eliminar producto
-router.delete('/',authorizeRoles('admin', 'sadmin'), async (req, res) => {
+router.delete('/', async (req, res) => {
     try{
         await deleteProduct(req.body);
         res.status(200).json({message: "Product deleted"});

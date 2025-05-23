@@ -1,50 +1,138 @@
 import prisma  from '../db/client.js';
 
-// crea un producto
-export async function createProduct({name, description, price, category_id, color_id}) {
-    await Validation.color(color_id);
-    await Validation.category(category_id);
+import { createColor } from './color.function.js'; // Importa la función createColor
+import { createCategory } from './category.function.js'; // Importa la función createCategory
+import { createBrand } from './brand.function.js'; // Importa la función createBrand
 
-    try{
-        const newProduct = await prisma.product.create({
-            data: {
-                name,
-                description,
-                category_id,
-                price,
-                color_id
-            }
-        });
-        return newProduct;
-    }catch(error){
-        throw new Error('Error creating product');
-    }
-}
 
-// actualiza un producto 
-export async function updateProduct(updateData) {
-    const { id, name, description, category_id, color_id } = updateData;
-
-    await Validation.product(id);
-
-    if (category_id !== undefined) await Validation.category(category_id);
-    if (color_id !== undefined) await Validation.color(color_id);
-
+export async function createProduct({
+    name,
+    description,
+    price,
+    category,
+    brand,
+    colors, // lista de colores [{ name, code }, ...]
+    }) {
+    
+    console.log('category', category);
+    console.log('brand', brand);
+    category = await createCategory(category);
+    const category_id = category.id;
+  
+  
+    brand = await createBrand(brand);
+    const brand_id = brand.id;
+    
     try {
-        const updatedProduct = await prisma.product.update({
-            where: { id },
-            data: {
-                ...(name !== undefined && { name }),
-                ...(description !== undefined && { description }),
-                ...(category_id !== undefined && { category_id }),
-                ...(color_id !== undefined && { color_id })
-            }
-        });
-        return updatedProduct;
+      // 1. Crear/reutilizar todos los colores
+      const colorRecords = await Promise.all(
+        colors.map(color => createColor({ name: color.name, code: color.code }))
+      );
+
+      // 2. Construir la relación intermedia para la creación
+      const colorConnections = colorRecords.map(color => ({
+        color: {
+          connect: { id: color.id }
+        }
+      }));
+
+      // 3. Crear el producto con las relaciones a múltiples colores
+      const newProduct = await prisma.product.create({
+        data: {
+          name,
+          description,
+          price,
+          category: { connect: { id: category_id } },
+          brand: { connect: { id: brand_id } },
+          colors: {
+            create: colorConnections
+          }
+        },
+        include: {
+          colors: { include: { color: true } }
+        }
+      });
+
+      return newProduct;
     } catch (error) {
-        throw new Error('Error updating product');
+      console.error(error);
+      throw new Error('Error creating product');
     }
 }
+
+
+export async function updateProduct(updateData) {
+  const {
+    id,
+    name,
+    description,
+    price,
+    category_id,
+    brand_id,
+    colors // array opcional: [{ name, code }]
+  } = updateData;
+
+  // Validación del producto existente
+  await Validation.product(id);
+  if (category_id !== undefined) await Validation.category(category_id);
+  if (brand_id !== undefined) await Validation.brand(brand_id);
+
+  try {
+    // Actualizar los campos básicos
+    const updatedProduct = await prisma.product.update({
+      where: { id },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(description !== undefined && { description }),
+        ...(price !== undefined && { price }),
+        ...(category_id !== undefined && {
+          category: { connect: { id: category_id } }
+        }),
+        ...(brand_id !== undefined && {
+          brand: { connect: { id: brand_id } }
+        })
+      }
+    });
+
+    // Si se actualizan los colores, reemplazarlos
+    if (colors && colors.length > 0) {
+      // Crear o reutilizar colores
+      const colorRecords = await Promise.all(
+        colors.map(color => createColor({ name: color.name, code: color.code }))
+      );
+
+      // Eliminar asociaciones existentes con colores
+      await prisma.productColor.deleteMany({
+        where: { product_id: id }
+      });
+
+      // Crear nuevas asociaciones
+      await Promise.all(
+        colorRecords.map(color =>
+          prisma.productColor.create({
+            data: {
+              product: { connect: { id } },
+              color: { connect: { id: color.id } }
+            }
+          })
+        )
+      );
+    }
+
+    // Retornar el producto actualizado con los colores asociados
+    return await prisma.product.findUnique({
+      where: { id },
+      include: {
+        colors: { include: { color: true } }
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    throw new Error('Error updating product');
+  }
+}
+
 
 export async function getProducts() {
   try {
@@ -94,6 +182,15 @@ export async function deleteProduct({product_id}) {
 }
 
 class Validation{
+
+
+    static async brand(brand_id){
+        const existingBrand = await prisma.brand.findUnique({ where: { id: brand_id } });
+        if (!existingBrand) {
+            throw new Error('Brand not found');
+        }
+    }
+
     static async color(color_id){
         const existingColor = await prisma.color.findUnique({ 
             where: { id: color_id }
