@@ -23,19 +23,25 @@ model Company {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  name      String
-  email     String  @unique
-  password  String
-  rut       String? @unique
-  role      String
-  is_active Boolean @default(true)
+  id         Int     @id @default(autoincrement())
+  name       String
+  email      String  @unique
+  password   String
+  rut        String? @unique
+  role       String  // 'admin' | 'seller'
+  is_active  Boolean @default(true)
 
-  company   Company @relation(fields: [company_id], references: [id])
-  company_id Int
+  // Un usuario administrador pertenece a una empresa
+  company    Company? @relation(fields: [company_id], references: [id])
+  company_id Int?
 
-  sales     Sale[]
+  // Un usuario vendedor trabaja en una tienda
+  store      Store? @relation(fields: [store_id], references: [id])
+  store_id   Int?
+
+  sales      Sale[]
 }
+
 
 model Store {
   id            Int      @id @default(autoincrement())
@@ -51,6 +57,7 @@ model Store {
   company   Company @relation(fields: [company_id], references: [id])
   company_id Int
 
+  users     User[]
   sales          Sale[]
   storeProducts  StoreProduct[]
 }
@@ -62,30 +69,52 @@ model Category {
   products Product[]
 }
 
+
+model Brand {
+  id   Int       @id @default(autoincrement())
+  name String    @unique
+  products   Product[]
+}
+
 model Color {
   id    Int     @id @default(autoincrement())
   name  String  @unique
   code  String  @unique
 
-  products Product[]
+  products ProductColor[] 
+
 }
 
 model Product {
   id          Int       @id @default(autoincrement())
   name        String
   description String?
-  price       Int      
+  price       Int
   is_active   Boolean    @default(true)
 
-  category   Category @relation(fields: [category_id], references: [id])
-  category_id Int
+  category     Category @relation(fields: [category_id], references: [id])
+  category_id  Int
 
-  color      Color    @relation(fields: [color_id], references: [id])
-  color_id    Int
+  brand        Brand    @relation(fields: [brand_id], references: [id])
+  brand_id     Int
 
-  saleItems      SaleItem[]
-  storeProducts  StoreProduct[]
-  images         Image[]  
+  saleItems     SaleItem[]
+  storeProducts StoreProduct[]
+  images        Image[]
+  colors        ProductColor[] // ← aquí
+
+  // Ya no hay color_id ni color directo
+}
+
+
+model ProductColor {
+  product_id Int
+  color_id   Int
+
+  product Product @relation(fields: [product_id], references: [id])
+  color   Color   @relation(fields: [color_id], references: [id])
+
+  @@id([product_id, color_id])
 }
 
 model Image {

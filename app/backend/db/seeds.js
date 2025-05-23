@@ -1,121 +1,171 @@
-import prisma from './client.js'
+import prisma from './client.js' 
+import bcrypt from 'bcryptjs';
+
 
 async function main() {
-
-    // Crear la compañía
-    const company = await prisma.company.create({
+  // Crear empresa
+  // Buscar o crear empresa
+  let company = await prisma.company.findFirst({ where: { rut: '76.123.456-7' } })
+  if (!company) {
+    company = await prisma.company.create({
       data: {
-        name: 'NotVentas SPA',
-        rut: '76.123.456-0',
-        is_active: true,
-        address_street: 'Av. Ejemplo 123',
+        name: 'Mi Empresa S.A.',
+        rut: '76.123.456-7',
+        address_street: 'Av. Principal 123',
         address_city: 'Santiago',
         address_state: 'RM',
-        postal_code: 8320000
-      }
-    });
-
- 
-    // Crea la tienda
-    const store = await prisma.store.create({
-      data: {
-      name: 'Tienda Ejemplo',
-      coord_latitude: -33.4489,
-      coord_longitude: -70.6693,
-      address_street: 'Av. Ejemplo 456',
-      address_city: 'Santiago',
-      address_state: 'RM',
-      postal_code: 8320000,
-      is_active: true,
-      company_id: company.id
-      }
-    });
-
-    // registramos categorias
-    const categories = await prisma.category.createMany({
-      data: [
-        {
-          name: 'Electrónica',
-        },
-        {
-          name: 'Ropa',
-        }
-      ]
-    });
-    // registrar colores
-    const colors = await prisma.color.createMany({
-      data: [
-        {
-          name: 'Rojo',
-          code: '#FF0000'
-        },
-        {
-          name: 'Azul',
-          code: '#0000FF'
-        },
-        {
-          name: 'Verde',
-          code: '#00FF00'
-        },
-        {
-          name: 'Amarillo',
-          code: '#FFFF00'
-        },
-        {
-          name: 'Negro',
-          code: '#000000'
-        }
-      ]
-    });
-
-    // crear productos
-    const products = await prisma.product.createMany({
-      data: [
-        {
-          name: 'Smartphone X',
-          description: 'Teléfono inteligente de última generación',
-          is_active: true,
-          price: 100000,
-          category_id: 1, // Electrónica
-          color_id: 1    // Rojo
-        },
-        {
-          name: 'Polera Básica',
-          description: 'Polera de algodón, talla M',
-          is_active: true,
-          price: 10000,
-          category_id: 2, // Ropa
-          color_id: 2    // Azul
-        },
-        {
-          name: 'Audífonos Bluetooth',
-          description: 'Audífonos inalámbricos con cancelación de ruido',
-          price: 35000,
-          is_active: true,
-          category_id: 1, // Electrónica
-          color_id: 5    // Negro
-        },
-        {
-          name: 'Chaqueta Impermeable',
-          description: 'Chaqueta resistente al agua, talla Ls',
-          is_active: true,
-          price: 65000,
-          category_id: 2, // Ropa
-          color_id: 3    // Verde
-        }
-      ]
-    });
-
-    
-  
-    console.log('Compañía y tienda registrados correctamente');
-
-  }
-  
-  main()
-    .catch((e) => {
-      console.error(e);
+        postal_code: 1230000,
+      },
     })
-    .finally(async () => {
-      await prisma.$disconnect();
-    });
+  }
+
+  // Buscar o crear tienda
+  let store = await prisma.store.findFirst({ where: { name: 'Tienda Central', company_id: company.id } })
+  if (!store) {
+    store = await prisma.store.create({
+      data: {
+        name: 'Tienda Central',
+        address_street: 'Calle Comercio 456',
+        address_city: 'Santiago',
+        address_state: 'RM',
+        postal_code: 1230001,
+        company: { connect: { id: company.id } },
+      },
+    })
+  }
+
+  // Buscar o crear usuarios
+  let admin = await prisma.user.findFirst({ where: { email: 'admin@empresa.cl' } })
+  if (!admin) {
+    admin = await prisma.user.create({
+      data: {
+        name: 'Administrador General',
+        email: 'admin@empresa.cl',
+        password: await bcrypt.hash('123456', 10),
+        rut: '12.345.678-9',
+        role: 'admin',
+        company: { connect: { id: company.id } },
+      },
+    })
+  }
+
+  let seller = await prisma.user.findFirst({ where: { email: 'seller@empresa.cl' } })
+  if (!seller) {
+    seller = await prisma.user.create({
+      data: {
+        name: 'Vendedor Uno',
+        email: 'seller@empresa.cl',
+        password: await bcrypt.hash('123456', 10),
+        rut: '11.111.111-1',
+        role: 'seller',
+        store: { connect: { id: store.id } },
+      },
+    })
+  }
+
+  // Buscar o crear categorías
+  let catElectro = await prisma.category.findFirst({ where: { name: 'Electrodomésticos' } })
+  if (!catElectro) {
+    catElectro = await prisma.category.create({ data: { name: 'Electrodomésticos' } })
+  }
+  let catRopa = await prisma.category.findFirst({ where: { name: 'Ropa' } })
+  if (!catRopa) {
+    catRopa = await prisma.category.create({ data: { name: 'Ropa' } })
+  }
+
+  // Buscar o crear marcas
+  let marcaX = await prisma.brand.findFirst({ where: { name: 'MarcaX' } })
+  if (!marcaX) {
+    marcaX = await prisma.brand.create({ data: { name: 'MarcaX' } })
+  }
+  let marcaY = await prisma.brand.findFirst({ where: { name: 'MarcaY' } })
+  if (!marcaY) {
+    marcaY = await prisma.brand.create({ data: { name: 'MarcaY' } })
+  }
+
+  // Buscar o crear colores
+  let rojo = await prisma.color.findFirst({ where: { name: 'Rojo' } })
+  if (!rojo) {
+    rojo = await prisma.color.create({ data: { name: 'Rojo', code: '#FF0000' } })
+  }
+  let azul = await prisma.color.findFirst({ where: { name: 'Azul' } })
+  if (!azul) {
+    azul = await prisma.color.create({ data: { name: 'Azul', code: '#0000FF' } })
+  }
+  let negro = await prisma.color.findFirst({ where: { name: 'Negro' } })
+  if (!negro) {
+    negro = await prisma.color.create({ data: { name: 'Negro', code: '#000000' } })
+  }
+
+  // Productos
+  const [licuadora, polera, microondas] = await Promise.all([
+    prisma.product.create({
+      data: {
+        name: 'Licuadora X100',
+        description: 'Potente y silenciosa.',
+        price: 59990,
+        category: { connect: { id: catElectro.id } },
+        brand: { connect: { id: marcaX.id } },
+        colors: { create: [{ color: { connect: { id: rojo.id } } }] },
+        storeProducts: { create: { store: { connect: { id: store.id } }, quantity: 10 } },
+      },
+    }),
+    prisma.product.create({
+      data: {
+        name: 'Polera Azul',
+        description: '100% algodón',
+        price: 14990,
+        category: { connect: { id: catRopa.id } },
+        brand: { connect: { id: marcaY.id } },
+        colors: { create: [{ color: { connect: { id: azul.id } } }] },
+        storeProducts: { create: { store: { connect: { id: store.id } }, quantity: 20 } },
+      },
+    }),
+    prisma.product.create({
+      data: {
+        name: 'Microondas 800W',
+        description: 'Compacto y eficiente.',
+        price: 89990,
+        category: { connect: { id: catElectro.id } },
+        brand: { connect: { id: marcaX.id } },
+        colors: { create: [{ color: { connect: { id: negro.id } } }] },
+        storeProducts: { create: { store: { connect: { id: store.id } }, quantity: 5 } },
+      },
+    }),
+  ])
+
+  // Venta simulada
+  const sale = await prisma.sale.create({
+    data: {
+      number: 'SALE-001',
+      total: 59990 + 14990,
+      user: { connect: { id: seller.id } },
+      store: { connect: { id: store.id } },
+      saleItems: {
+        create: [
+          {
+            product: { connect: { id: licuadora.id } },
+            quantity: 1,
+            price: 59990,
+          },
+          {
+            product: { connect: { id: polera.id } },
+            quantity: 1,
+            price: 14990,
+          },
+        ],
+      },
+    },
+  })
+
+  console.log('✅ Seed completo con productos y una venta simulada.')
+}
+
+main()
+  .catch((e) => {
+    console.error('❌ Error:', e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })

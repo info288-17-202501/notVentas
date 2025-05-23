@@ -1,0 +1,108 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table Company {
+  id int [pk, increment]
+  name varchar
+  rut varchar [unique]
+  is_active boolean
+  address_street varchar
+  address_city varchar
+  address_state varchar
+  postal_code varchar
+}
+
+Table User {
+  id int [pk, increment]
+  name varchar
+  email varchar [unique]
+  password text
+  rut varchar [unique]
+  is_active boolean
+  company_id int
+  store_id int
+  role int
+}
+
+
+
+Table Store {
+  id int [pk, increment]
+  name varchar
+  coord_latitude decimal
+  coord_longitude decimal
+  address_street varchar
+  address_city varchar
+  address_state varchar
+  postal_code varchar
+  is_active boolean
+  company_id int
+}
+
+Table Category {
+  id int [pk, increment]
+  name varchar [unique]
+}
+
+Table Color {
+  id int [pk, increment]
+  name varchar [unique]
+  code varchar [unique]
+}
+
+Table Product {
+  id int [pk, increment]
+  name varchar
+  description text
+  is_active boolean
+  category_id int
+  brand_id int
+}
+
+Table Brand {
+  id int [pk, increment]
+  name varchar
+}
+
+Table StoreProduct {
+  store_id int
+  product_id int
+  quantity int
+}
+
+Table Sale {
+  id int [pk, increment]
+  number varchar [unique]
+  date datetime
+  total decimal
+  user_id int
+  store_id int
+}
+
+Table ProductColor{
+  product_id int
+  color_id int
+}
+
+Table SaleItems {
+  sale_id int
+  product_id int
+  quantity int
+  price decimal
+  
+}
+
+
+Ref: ProductColor.product_id > Product.id
+Ref: ProductColor.color_id > Color.id
+Ref: User.company_id > Company.id
+Ref: User.store_id > Store.id
+Ref: Store.company_id > Company.id
+Ref: Product.category_id > Category.id
+Ref: StoreProduct.store_id > Store.id
+Ref: StoreProduct.product_id > Product.id
+Ref: Sale.user_id > User.id
+Ref: Sale.store_id > Store.id
+Ref: SaleItems.sale_id > Sale.id
+Ref: SaleItems.product_id > Product.id
+Ref: Brand.id > Product.brand_id
