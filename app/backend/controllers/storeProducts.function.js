@@ -1,32 +1,69 @@
 import prisma from '../db/client.js';
 
-export async function addProductToStore({ store_id, product_id, quantity }) {
-    try {
-        const storeProducts = await prisma.storeProduct.create({
-            data: {
-                store_id,
-                product_id,
-                quantity
-            }
-        });
-        return storeProducts;
-    } catch (error) {
-        throw new Error('Error adding product to store');
+export async function addProductToStore({ store_id, product_id, colors }) {
+  try {
+    if (!Array.isArray(colors) || colors.length === 0) {
+      throw new Error("You must provide a colors array");
     }
+
+    const results = [];
+
+    for (const { color_id, quantity } of colors) {
+      const existingProduct = await prisma.storeProduct.findUnique({
+        where: {
+          store_id_product_id_color_id: {
+            store_id,
+            product_id,
+            color_id
+          }
+        }
+      });
+
+      if (existingProduct) {
+        throw new Error(`Product with color ${color_id} already exists in store`);
+      }
+
+      const storeProduct = await prisma.storeProduct.create({
+        data: {
+          store: { connect: { id: store_id } },
+          product: { connect: { id: product_id } },
+          color: { connect: { id: color_id } },
+          quantity
+        }
+      });
+
+      results.push(storeProduct);
+    }
+
+    return results;
+  } catch (error) {
+    console.error(error);
+    throw new Error('Error adding product(s) to store');
+  }
 }
 
-export async function updateProductInStore({ store_id, product_id, quantity }) {
+
+
+export async function updateProductInStore({ store_id, product_id, colors }) {
     try {
-        const updatedStoreProduct = await prisma.storeProduct.update({
-            where: {
-                store_id_product_id: { store_id, product_id }
-            },
-            data: {
-                quantity
-            }
-        });
-        return updatedStoreProduct;
+        if (!Array.isArray(colors) || colors.length === 0) {
+            throw new Error("You must provide a colors array");
+        }
+        const results = [];
+        for (const { color_id, quantity } of colors) {
+            const updatedStoreProduct = await prisma.storeProduct.update({
+                where: {
+                    store_id_product_id_color_id: { store_id, product_id, color_id }
+                },
+                data: {
+                    quantity
+                }
+            });
+            results.push(updatedStoreProduct);
+        }
+        return results;
     } catch (error) {
+        console.error(error);
         throw new Error('Error updating product in store');
     }
 }
@@ -35,19 +72,48 @@ export async function getStoreProducts(store_id) {
     try {
         const products = await prisma.storeProduct.findMany({
             where: { store_id },
-            include: { product: true }
+            include: {
+                product: true,
+                color: true
+            }
         });
-        return products;
+
+        const grouped = {};
+
+        for (const item of products) {
+            const key = item.product_id;
+
+            if (!grouped[key]) {
+                grouped[key] = {
+                    product: item.product,
+                    total_quantity: 0,
+                    colors: []
+                };
+            }
+
+            grouped[key].total_quantity += item.quantity;
+
+            grouped[key].colors.push({
+                id: item.color.id,
+                name: item.color.name,
+                code: item.color.code,
+                quantity: item.quantity
+            });
+        }
+
+        return Object.values(grouped);
     } catch (error) {
+        console.error(error);
         throw new Error('Error fetching store products');
     }
 }
 
-export async function deleteStoreProduct({ store_id, product_id }) {
+
+export async function deleteStoreProduct({ store_id, product_id, color_id }) {
     try {
         const deleted = await prisma.storeProduct.delete({
             where: {
-                store_id_product_id: { store_id, product_id }
+                store_id_product_id_color_id: { store_id, product_id, color_id }
             }
         });
         return deleted;

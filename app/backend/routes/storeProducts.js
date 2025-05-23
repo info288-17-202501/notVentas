@@ -26,7 +26,8 @@ router.put('/', async (req, res) => {
 // Obtener productos de una tienda
 router.get('/:store_id', async (req, res) => {
     try {
-        const products = await getStoreProducts(Number(req.params.store_id));
+        const store_id = parseInt(req.params.store_id);
+        const products = await getStoreProducts(store_id);
         res.status(200).json({ products });
     } catch (error) {
         res.status(500).json({ error: error.message });

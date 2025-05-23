@@ -113,7 +113,8 @@ const [licuadora, polera, microondas] = await Promise.all([
       storeProducts: {
         create: {
           store: { connect: { id: store.id } },
-          quantity: 10
+          quantity: 10,
+          color: {connect: {id: rojo.id}}
         }
       }
     }
@@ -134,7 +135,8 @@ const [licuadora, polera, microondas] = await Promise.all([
       storeProducts: {
         create: {
           store: { connect: { id: store.id } },
-          quantity: 20
+          quantity: 20,
+          color: {connect: {id: azul.id}}
         }
       }
     }
@@ -155,7 +157,8 @@ const [licuadora, polera, microondas] = await Promise.all([
       storeProducts: {
         create: {
           store: { connect: { id: store.id } },
-          quantity: 5
+          quantity: 5,
+          color: {connect: {id: negro.id}}
         }
       }
     }
