@@ -53,12 +53,14 @@ const SaleList = () => {
                     <td className="py-2 px-3 border-b border-gray-100">{sale.date}</td>
                     <td className="py-2 px-3 border-b border-gray-100">{sale.customer || "N/A"}</td>
                     <td className="py-2 px-3 border-b border-gray-100">${sale.total}</td>
-                    <button
-                    className="bg-blue-600 m-1 text-white rounded px-3 py-1 hover:bg-blue-700 transition"
-                    onClick={() => handleShowDetails(sale)}
-                    >
-                    Ver productos
-                    </button>
+                    <td>
+                        <button
+                        className="bg-blue-600 m-1 text-white rounded px-3 py-1 hover:bg-blue-700 transition"
+                        onClick={() => handleShowDetails(sale)}
+                        >
+                        Ver productos
+                        </button>
+                    </td>
                 </tr>
               ))}
             </tbody>
