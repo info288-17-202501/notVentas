@@ -8,7 +8,7 @@ export async function createUser( { email, password, name, rut, company_id, role
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await prisma.user.create({
-        data: { email, password: hashedPassword, rut, name, role, company_id }
+        data: {name, password: hashedPassword, email, rut, company_id, role }
     });
     return newUser;
    

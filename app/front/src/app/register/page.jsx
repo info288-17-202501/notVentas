@@ -8,8 +8,8 @@ const Register = () => {
   const [rut , setRut] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [company_id, setCompany] = useState(10);
-  const [role_id, setRole] = useState(14); // Cambia a "user" por defecto
+  const [company_id, setCompany] = useState("");
+  const [role, setRole] = useState(""); // Cambia a "user" por defecto
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -18,13 +18,9 @@ const Register = () => {
     setError("");
     
     try {
-      const data = { name, password,email, rut, company_id, role_id }
-      console.log("Respuesta de la API:", data); // Muestra la respuesta de la AP
+      const data = { name, password, email, rut, company_id: Number(company_id), role }
+      console.log("Respuesta de la API:", data); // Muestra la respuesta de la API
       const response = await register(data); // Llama a la función de registro
-
-
-
-
       console.log("Usuario registrado:", response);
 
       // Redirige al usuario al login después del registro
@@ -87,12 +83,11 @@ const Register = () => {
             value={company_id}
             onChange={(e) => setCompany(e.target.value)}
             className="w-full p-2 mb-4 border rounded"
-            required
-          />
+            />
           <input
-            type="number"
+            type="text"
             placeholder="Rol"
-            value={role_id}
+            value={role}
             onChange={(e) => setRole(e.target.value)}
             className="w-full p-2 mb-4 border rounded"
             required
