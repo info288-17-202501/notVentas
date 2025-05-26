@@ -1,24 +1,38 @@
 import prisma from "../db/client.js";
+import { addSaleItems } from "./saleItem.function.js";
 
 export async function createSale(data) {
-    const { number, store_id, user_id, total, Items } = data; 
-   
-    let date = new Date().toISOString(); // fecha actual en formato ISO 8601 (tipo datetime)
-    try {
-        const newSale = await prisma.sale.create({
-            data: {
-                number,
-                date,
-                total,
-                user_id,
-                store_id,
-            }
-        });
-        return {newSale};
-    } catch (error) {
-        console.error('Error creating sale:', error);
-        throw new Error('Error creating sale in the database');
-    }
+  const { number, store_id, user_id, total, items } = data;
+
+  if (!number || !store_id || !user_id || !total || !items) {
+    throw new Error('Missing required fields for creating sale');
+  }
+
+  const date = new Date().toISOString();
+
+  try {
+    const newSale = await prisma.sale.create({
+      data: {
+        number,
+        date,
+        total,
+        user_id,
+        store_id
+      }
+    });
+    console.log("Items", items);
+    // Asociar los ítems a la venta creada
+    const sale_id = newSale.id;
+    const saleItems = await addSaleItems({sale_id, items});
+
+    return {
+      ...newSale,
+      items: saleItems
+    };
+  } catch (error) {
+    console.error('Error creating sale:', error);
+    throw new Error('Error creating sale in the database');
+  }
 }
 
 export async function getSales() {

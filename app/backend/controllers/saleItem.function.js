@@ -1,21 +1,39 @@
 import prisma from '../db/client.js';
 
-export async function addSaleItem({ sale_id, product_id, quantity, price }) {
+export async function addSaleItems({ sale_id, items }) {
     try {
-        const saleItem = await prisma.saleItem.create({
-            data: {
-                sale_id,
-                product_id,
-                quantity,
-                price
+        console.log("Sale ID", sale_id);
+        console.log("Items", items);
+        if (!sale_id || !items) {
+            throw new Error('Missing required fields for adding sale items');
+        }
+        const createdItems = [];
+        for (const item of items) {
+            const { product_id, quantity, price } = item;
+            console.log("Item", item);
+
+            if (!product_id || !quantity || !price) {
+                throw new Error('Missing required fields for sale item');
             }
-        });
-        return saleItem;
-    } catch (error) {
-        throw new Error('Error adding sale item');
+
+            const createdItem = await prisma.saleItem.create({
+                data: {
+                    sale_id,
+                    product_id,
+                    quantity,
+                    price
+                }
+            });
+
+            createdItems.push(createdItem);
+        }
+        return createdItems;
+    }
+    catch (error) {
+        console.error('Error adding sale items:', error);
+        throw new Error('Error adding sale items');
     }
 }
-
 export async function getSaleItems(sale_id) {
     try {
         const items = await prisma.saleItem.findMany({

@@ -1,14 +1,22 @@
 import bcrypt from 'bcryptjs';
 import prisma  from '../db/client.js';
 
-export async function createUser( { email, password, name, rut, company_id, role }){
+export async function createUser( { email, password, name, rut, company_id, store_id, role }){
     Validation.email(email);
     Validation.password(password);
     Validation.role(role);
 
+
+    if (role === 'sadmin' && !company_id) {
+        throw new Error('Company ID is required for super admin');
+    }
+    if (role !== 'seller' && !store_id) {
+        throw new Error('Store ID is required for non-seller roles');
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await prisma.user.create({
-        data: {name, password: hashedPassword, email, rut, company_id, role }
+        data: {name, password: hashedPassword, email, rut, company_id, store_id, role }
     });
     return newUser;
    

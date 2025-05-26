@@ -1,11 +1,11 @@
 import express from 'express';
-import { addSaleItem, getSaleItems, deleteSaleItem } from '../controllers/saleItem.function.js';
+import { addSaleItems, getSaleItems, deleteSaleItem } from '../controllers/saleItem.function.js';
 
 const router = express.Router();
 
 router.post('/', async (req, res) => {
     try {
-        const saleItem = await addSaleItem(req.body);
+        const saleItem = await addSaleItems(req.body);
         res.status(201).json({ message: "Sale item added", saleItem });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -20,6 +20,7 @@ router.get('/:sale_id', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 router.delete('/', async (req, res) => {
     try {
