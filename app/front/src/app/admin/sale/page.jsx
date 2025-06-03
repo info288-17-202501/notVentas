@@ -1,4 +1,3 @@
-// app/sale/page.tsx
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
 
