@@ -2,13 +2,9 @@
 
 import { createContext, useContext, useState } from "react";
 
-// Crear el contexto
 const CartContext = createContext();
-
-// Hook para usar el contexto
 export const useCart = () => useContext(CartContext);
 
-// Proveedor del contexto
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
@@ -29,13 +25,45 @@ export const CartProvider = ({ children }) => {
     });
   };
 
+  const removeFromCart = (itemId, color) => {
+    setCartItems((prevItems) =>
+      prevItems.filter(
+        (item) => !(item.id === itemId && item.color === color)
+      )
+    );
+  };
+
+  const updateQuantity = (itemId, color, newQty) => {
+    if (newQty < 1) return; // opcional: evita cantidades 0 o negativas
+    setCartItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === itemId && item.color === color
+          ? { ...item, quantity: newQty }
+          : item
+      )
+    );
+  };
+
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
   const totalCount = cartItems.reduce(
     (total, item) => total + item.quantity,
     0
   );
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, totalCount }}>
+    <CartContext.Provider
+      value={{
+        cartItems,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        totalCount,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
