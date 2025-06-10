@@ -5,7 +5,7 @@ import Navbar from '../../layout/navbar';
 const AdminPage = () => {
     
     return (
-        <div classname="" >
+        <div className="p-8" >
             <Navbar />
             <h1>Bienvenido al panel de administración</h1>
            <Footer />

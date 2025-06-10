@@ -32,30 +32,30 @@ export default function AdminLayout({ children }) {
                                 <Link href="/admin/products" className="mb-4 text-white hover:text-blue-500">
                                     PRODUCTOS
                                 </Link>
-                                <Link href="/admin/stores" className="mb-4 text-white hover:text-blue-500">
-                                    ESTADÍSTICAS
+                                <Link href="/admin/stadistics" className="mb-4 text-white hover:text-blue-500">
+                                    ESTADISTICAS
                                 </Link>
-                                <Link href="/admin/stores" className="mb-4 text-white hover:text-blue-500">
+                                <Link href="/admin/maps" className="mb-4 text-white hover:text-blue-500">
                                     MAPAS
                                 </Link>
                                 <Link href="/admin/stores" className="mb-4 text-white hover:text-blue-500">
-                                    VENTAS
-                                </Link>
-                                <Link href="/admin/stores" className="mb-4 text-white hover:text-blue-500">
                                     VENDEDORES
+                                </Link>
+                                <Link href="/admin/sales" className="mb-4 text-white hover:text-blue-500">
+                                    VENTAS
                                 </Link>
                             </div>
                         )}
                         {/* Botones para SELLER */}
                         {userRole === 'seller' && (
                             <div className="w-48 flex flex-col bg-blue-950 hover:bg-blue-900 transition-colors shadow-md rounded-lg p-4">
-                                <Link href="/admin/products" className="mb-4 text-white hover:text-green-300">
+                                <Link href="/admin/seller/products" className="mb-4 text-white hover:text-green-300">
                                     PRODUCTOS
                                 </Link>
-                                <Link href="/admin/sales" className="mb-4 text-white hover:text-green-300">
+                                <Link href="/admin/seller/sales" className="mb-4 text-white hover:text-green-300">
                                     VENTAS
                                 </Link>
-                                <Link href="/admin/stores" className="mb-4 text-white hover:text-green-300">
+                                <Link href="/admin/seller/stores" className="mb-4 text-white hover:text-green-300">
                                     STORES
                                 </Link>
                             </div>
