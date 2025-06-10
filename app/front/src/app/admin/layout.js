@@ -25,23 +25,23 @@ export default function AdminLayout({ children }) {
                     <nav className="flex flex-col gap-6 w-full items-center">
                         {/* Botones para ADMIN */}
                         {userRole === 'admin' && (
-                            <div className="w-48 flex flex-col bg-blue-950 hover:bg-blue-900 transition-colors shadow-md rounded-lg p-4">
-                                <Link href="/admin/companies" className="mb-4 text-white hover:text-blue-500">
+                            <div className="w-48 flex flex-col ">
+                                <Link href="/admin/companies" className="mb-4 text-white border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
                                     EMPRESAS
                                 </Link>
-                                <Link href="/admin/products" className="mb-4 text-white hover:text-blue-500">
+                                <Link href="/admin/products" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
                                     PRODUCTOS
                                 </Link>
-                                <Link href="/admin/stadistics" className="mb-4 text-white hover:text-blue-500">
+                                <Link href="/admin/stadistics" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
                                     ESTADISTICAS
                                 </Link>
-                                <Link href="/admin/maps" className="mb-4 text-white hover:text-blue-500">
+                                <Link href="/admin/maps" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
                                     MAPAS
                                 </Link>
-                                <Link href="/admin/stores" className="mb-4 text-white hover:text-blue-500">
+                                <Link href="/admin/stores" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
                                     VENDEDORES
                                 </Link>
-                                <Link href="/admin/sales" className="mb-4 text-white hover:text-blue-500">
+                                <Link href="/admin/sale" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
                                     VENTAS
                                 </Link>
                             </div>

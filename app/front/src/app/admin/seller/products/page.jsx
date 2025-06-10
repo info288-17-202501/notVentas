@@ -1,58 +1,67 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import ProductCard from "../../../components/ProductCard";
-const products = [
-  {
-    id: 1,
-    name: "Cubre Mochila Rojo",
-    image: "/images/cubremochilas/azulRosa.jpeg",
-    price: "$9.990",
-    description: "Resistente al agua, ideal para días lluviosos."
-  },
-  {
-    id: 2,
-    name: "Cubre Mochila Azul",
-    image: "/images/cubremochilas/moradoNaranjo.jpeg",
-    price: "$10.990",
-    description: "Material reflectante para mayor seguridad."
-  },
-  {
-    id: 3,
-    name: "Cubre Mochila verde",
-    image: "/images/cubremochilas/queNoSeTeMoje.jpeg",
-    price: "$7.990",
-    description: "Resistente al fuego, ideal para el infierno."
-  }
-];
+'use client';
+import React, { useEffect, useState } from 'react';
+import ProductCard from '../../../../components/ProductCard1';
 
-const CatalogPage = () => {
-  const router = useRouter();
-  const [isVerified, setIsVerified] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-    } else {
-      setIsVerified(true);
-    }
-  }, [router]);
-
-  if (!isVerified) {
-    return null; // O puedes mostrar un loader si prefieres
-  }
-
-  return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6 text-green-700 text-center">Catálogo Cubre Mochilas</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-    </div>
-  );
+const tableStyle = {
+    width: '100%',
+    borderCollapse: 'collapse',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+    marginTop: '24px',
+    borderRadius: '8px',
+    overflow: 'hidden'
 };
 
-export default CatalogPage;
+const thStyle = {
+    color: '#fff',
+    padding: '12px',
+    textAlign: 'left',
+    fontWeight: 'bold',
+    borderBottom: '2px solid #1565c0'
+};
+
+const tdStyle = {
+    padding: '10px 12px',
+    borderBottom: '1px solid #e0e0e0',
+    background: '#fff'
+};
+
+const trHoverStyle = {
+    background: '#e3f2fd'
+};
+
+const ProductList = () => {
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [hoveredRow, setHoveredRow] = useState(null);
+
+    useEffect(() => {
+        fetch('http://localhost:3000/api/product/')
+            .then((res) => res.json())
+            .then((data) => {
+                if (Array.isArray(data)) {
+                    setProducts(data);
+                } else if (Array.isArray(data.products)) {
+                    setProducts(data.products);
+                } else {
+                    setProducts([]);
+                }
+                setLoading(false);
+            })
+            .catch(() => setLoading(false));
+    }, []);
+
+    if (loading) return <div>Cargando productos...</div>;
+
+    return (
+        <div>
+            <h1>Lista de Productos</h1>
+            <div className=" text-black grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
+                {products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                ))}
+            </div>
+        </div>
+    );
+};
+
+export default ProductList;

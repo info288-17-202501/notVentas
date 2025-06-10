@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Modal from "../../../../components/ui/modal";
+import Modal from "../../../components/ui/modal";
 
 const SaleList = () => {
   const [sales, setSales] = useState([]);
