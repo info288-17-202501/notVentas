@@ -20,6 +20,7 @@ const Login = () => {
       //Guarda el token y user en el localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(response.user)); 
+      localStorage.setItem("role", response.user.role);
       if (response.user.role === "admin" || response.user.role === "sadmin") {
         router.push("/dashboard");
       }

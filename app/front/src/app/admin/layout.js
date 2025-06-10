@@ -1,61 +1,73 @@
-'use client';
-
+"use client";
 import Link from 'next/link';
 import { useLogout } from '../../hooks/useLogout';
-import { CartProvider } from '@/context/CartContext'; // 👈 importa el provider
+import { CartProvider } from '@/context/CartContext';
 
 export default function AdminLayout({ children }) {
     const { logout } = useLogout();
+    const user = JSON.parse(localStorage.getItem('user'));
+    const userRole = user?.role; // 'admin' o 'seller'
+
+    //imprimimos en la consola el local storage
+    //console.log(localStorage);
+
     return (
-        <CartProvider> {}
+        <CartProvider>
             <div className="min-h-screen flex bg-gray-900">
-                <aside className="w-64 bg-gray-800 p-6 flex flex-col">
-                    <nav className="flex flex-col h-full">
-                        <h2 className="m-0 text-2xl font-bold tracking-wide">
-                            <Link href="/admin" className="text-white text-[22px] font-bold p-0 no-underline">
-                                Admin
-                            </Link>
-                        </h2>
-                        <ul className="list-none p-0 mt-8 flex flex-col gap-2">
-                            <li>
-                                <Link href="/admin/products" className="block text-white no-underline font-medium text-base py-2 px-3 rounded-md transition-colors hover:bg-white/10">
-                                    Productos
+                <aside className="w-72 bg-gray-800 p-6 flex flex-col items-center relative">
+                    {/* Saludo */}
+                    <div className="mb-8 w-full text-center">
+                        <span className="text-white text-xl font-bold tracking-wide">
+                            {userRole === 'admin' ? 'HOLA ADMIN' : 'HOLA SELLER'}
+                        </span>
+                    </div>
+                    {/* Botones del sidebar */}
+                    <nav className="flex flex-col gap-6 w-full items-center">
+                        {/* Botones para ADMIN */}
+                        {userRole === 'admin' && (
+                            <div className="w-48 flex flex-col bg-blue-950 hover:bg-blue-900 transition-colors shadow-md rounded-lg p-4">
+                                <Link href="/admin/companies" className="mb-4 text-white hover:text-blue-500">
+                                    EMPRESAS
                                 </Link>
-                            </li>
-                            <li>
-                                <Link href="/admin/users" className="block text-white no-underline font-medium text-base py-2 px-3 rounded-md transition-colors hover:bg-white/10">
-                                    Usuarios
+                                <Link href="/admin/products" className="mb-4 text-white hover:text-blue-500">
+                                    PRODUCTOS
                                 </Link>
-                            </li>
-                            <li>
-                                <Link href="/admin/stores" className="block text-white no-underline font-medium text-base py-2 px-3 rounded-md transition-colors hover:bg-white/10">
-                                    Tiendas
+                                <Link href="/admin/stores" className="mb-4 text-white hover:text-blue-500">
+                                    ESTADÍSTICAS
                                 </Link>
-                            </li>
-                            <li>
-                                <Link href="/admin/companies" className="block text-white no-underline font-medium text-base py-2 px-3 rounded-md transition-colors hover:bg-white/10">
-                                    Empresa
+                                <Link href="/admin/stores" className="mb-4 text-white hover:text-blue-500">
+                                    MAPAS
                                 </Link>
-                            </li>
-                            <li>
-                                <Link href="/dashboard" className="block text-white no-underline font-medium text-base py-2 px-3 rounded-md transition-colors hover:bg-white/10">
-                                    Dashboard
+                                <Link href="/admin/stores" className="mb-4 text-white hover:text-blue-500">
+                                    VENTAS
                                 </Link>
-                            </li>
-                        </ul>
-                        <div className="mt-auto text-xs opacity-70">
-                            <button
-                                onClick={logout}
-                                className="w-full flex items-center gap-2 justify-center py-2 px-3 rounded-md bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white font-semibold shadow transition-all duration-200 mb-4 border border-red-700"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
-                                </svg>
-                                Salir
-                            </button>
-                            © {new Date().getFullYear()} NotVentas
-                        </div>
+                                <Link href="/admin/stores" className="mb-4 text-white hover:text-blue-500">
+                                    VENDEDORES
+                                </Link>
+                            </div>
+                        )}
+                        {/* Botones para SELLER */}
+                        {userRole === 'seller' && (
+                            <div className="w-48 flex flex-col bg-blue-950 hover:bg-blue-900 transition-colors shadow-md rounded-lg p-4">
+                                <Link href="/admin/products" className="mb-4 text-white hover:text-green-300">
+                                    PRODUCTOS
+                                </Link>
+                                <Link href="/admin/sales" className="mb-4 text-white hover:text-green-300">
+                                    VENTAS
+                                </Link>
+                                <Link href="/admin/stores" className="mb-4 text-white hover:text-green-300">
+                                    STORES
+                                </Link>
+                            </div>
+                        )}
                     </nav>
+                    {/* Botón Salir fijo a la izquierda */}
+                    <button
+                        onClick={logout}
+                        className="mt-auto bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg p-1 w-full"
+                    >
+                        SALIR
+                    </button>
                 </aside>
                 <main className="flex-1 p-8">{children}</main>
             </div>

@@ -5,15 +5,17 @@ import Navbar from '../../layout/navbar';
 const AdminPage = () => {
     
     return (
-        <div style={styles.container}>
+        <div classname="" >
             <Navbar />
-            
+            <h1>Bienvenido al panel de administración</h1>
            <Footer />
         </div>
     );
 };
 
-const styles = {
+/**
+ * <div style={styles.container}>
+ * const styles = {
     container: {
         fontFamily: 'Arial, sans-serif',
         textAlign: 'center',
@@ -65,6 +67,6 @@ const styles = {
         color: 'white',
         padding: '1rem',
     },
-};
+};**/
 
 export default AdminPage;
