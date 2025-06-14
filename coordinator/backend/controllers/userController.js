@@ -4,7 +4,7 @@ import User from "../models/User.js";
 export async function registerUser(data) {
     const { name, email, password, phone, role, company, store} = data;
     // Validate required fields
-    if (!name || !email || !password || !role || !company) {
+    if (!name || !email || !password || !role) {
         throw new Error("Name, email, password, role, and company are required");
     }
 
