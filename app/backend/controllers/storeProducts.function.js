@@ -8,7 +8,10 @@ export async function addProductToStore({ store_id, product_id, colors }) {
 
     const results = [];
 
+    
+
     for (const { color_id, quantity } of colors) {
+      
       const existingProduct = await prisma.storeProduct.findUnique({
         where: {
           store_id_product_id_color_id: {
@@ -37,7 +40,7 @@ export async function addProductToStore({ store_id, product_id, colors }) {
 
     return results;
   } catch (error) {
-    throw new Error('Error adding product(s) to store');
+    throw new Error(`Error adding product(s) to store: ${error.message}`);
   }
 }
 
