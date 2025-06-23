@@ -1,4 +1,4 @@
-import Company from '../models/Company.js';
+import Company from '../models/company.js';
 
 function generateIdBase() {
   const timestamp = Date.now().toString(36);
