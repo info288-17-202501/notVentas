@@ -50,7 +50,7 @@ export async function listStoresByCompanyId(companyId) {
         throw new Error("Company ID is required");
     }
 
-    const stores = await Store.findOne({ company_id: companyId })
+    const stores = await Store.findOne({ company: companyId })
     console.log(stores);
 
     if (!stores) {
