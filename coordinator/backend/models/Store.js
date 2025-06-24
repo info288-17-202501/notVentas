@@ -7,6 +7,8 @@ const StoreSchema = new mongoose.Schema({
   port: { type: Number, required: true },
   company: { type: String, required: true},
   is_active: { type: Boolean, default: true },
+  coord_latitude: { type: Number, default: null },
+  coord_longitude: { type: Number, default: null },
 }, {
   timestamps: true,
 });

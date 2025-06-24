@@ -47,6 +47,7 @@ export async function updateStateStore(storeData) {
         throw new Error("State is required");
     }
 
+
     const store = await Store.findById(storeId); 
 
     if (!store) {
@@ -55,6 +56,39 @@ export async function updateStateStore(storeData) {
 
     // Update the store's state
     store.is_active = is_active;
+    const updatedStore = await store.save(); 
+
+    return updatedStore;
+}
+
+// funtion to update store position
+export async function updateStorePosition(storeData) {
+    const { storeId, coord_latitude, coord_longitude } = storeData;
+
+
+    if (!storeId) {
+        throw new Error("Store ID is required");
+    }
+
+    // Validate if storeId is a valid ObjectId
+    if (!storeId.match(/^[0-9a-fA-F]{24}$/)) {
+        throw new Error("Invalid Store ID format");
+    }
+
+    if (!coord_latitude || !coord_longitude) {
+        throw new Error("Coordinates are required");
+    }
+
+    const store = await Store.findById(storeId); 
+
+    if (!store) {
+        throw new Error("Store not found");
+    }
+
+    // Update the store's coordinates
+    store.coord_latitude = coord_latitude;
+    store.coord_longitude = coord_longitude;
+    // Save the updated store
     const updatedStore = await store.save(); 
 
     return updatedStore;

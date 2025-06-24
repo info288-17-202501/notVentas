@@ -1,4 +1,4 @@
-import { listStores, createStore, updateStateStore } from "../controllers/storeController.js";    
+import { listStores, createStore, updateStateStore, updateStorePosition } from "../controllers/storeController.js";    
 
 import { Router } from "express";
 
@@ -39,5 +39,14 @@ router.put("/state", async (req, res) => {
     }
 });
 
+
+router.put("/position", async (req, res) => {
+    try {
+        const store = await updateStorePosition(req.body);
+        res.status(200).json({ message: "Store position updated successfully", store });
+    }catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 // Exportar el router
 export default router;
