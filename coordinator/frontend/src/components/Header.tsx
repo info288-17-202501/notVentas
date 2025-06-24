@@ -8,6 +8,7 @@ import {
     MenuItem,
     Button
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const menuItems = [
     { label: 'Empresa', key: 'empresa' },
@@ -18,6 +19,7 @@ const menuItems = [
 
 const Header: React.FC = () => {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const navigate = useNavigate();
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -27,11 +29,19 @@ const Header: React.FC = () => {
         setAnchorEl(null);
     };
 
+    const handleMenuItemClick = (key: string) => {
+        handleMenuClose();
+        if (key === 'empresa') {
+            navigate('/empresas');
+        }
+        // Puedes agregar más rutas para otros botones si lo deseas
+    };
+
     const handleLogout = () => {
         const confirmed = window.confirm('¿Estás seguro de que deseas salir?');
         if (confirmed) {
             localStorage.removeItem('token');
-            window.location.href = '/'; // Redirigir a la página de inicio de sesión
+            window.location.href = '/';
         }
     };
 
@@ -39,7 +49,6 @@ const Header: React.FC = () => {
         <Box sx={{ mg:1 }}>
             <AppBar position="static">
                 <Toolbar>
-                    {/* Menú principal */}
                     <Button color="inherit" onClick={handleMenuOpen}>
                         Menú
                     </Button>
@@ -49,7 +58,10 @@ const Header: React.FC = () => {
                         onClose={handleMenuClose}
                     >
                         {menuItems.map((item) => (
-                            <MenuItem key={item.key} onClick={handleMenuClose}>
+                            <MenuItem
+                                key={item.key}
+                                onClick={() => handleMenuItemClick(item.key)}
+                            >
                                 {item.label}
                             </MenuItem>
                         ))}
@@ -57,7 +69,6 @@ const Header: React.FC = () => {
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         Coordinador
                     </Typography>
-                    {/* Botón de salir */}
                     <Button
                         color="inherit"
                         onClick={handleLogout}
