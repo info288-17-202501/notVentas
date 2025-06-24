@@ -32,7 +32,7 @@ export async function registerCompany(data) {
         email: admin.email,
         password: admin.password, 
         phone: admin.phone,
-        role: 'admin', 
+        role: "admin", 
         company: newCompany._id, 
         store: null
     };
@@ -51,11 +51,15 @@ export async function listStoresByCompanyId(companyId) {
     }
 
     const stores = await Store.findOne({ company: companyId })
-    console.log(stores);
 
     if (!stores) {
         throw new Error("Stores not founds for the given company ID");
     }
 
     return stores;   
+}
+
+export async function listCompanies() {
+    const companies = await Company.find();
+    return companies;
 }

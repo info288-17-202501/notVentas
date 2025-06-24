@@ -32,8 +32,6 @@ export async function listStores() {
 export async function updateStateStore(storeData) {
     const { storeId, is_active } = storeData;
 
-    console.log("Updating store state:", storeData);
-
     if (!storeId) {
         throw new Error("Store ID is required");
     }

@@ -8,7 +8,6 @@ const router = Router();
 router.post("/", async (req, res) => {
     try {
         const storeData = req.body;
-        console.log("Received store data:", storeData);
         if (!storeData || !storeData.name || !storeData.company_id) {
             return res.status(400).json({ error: "Store data with a name and company_id is required" });
         }

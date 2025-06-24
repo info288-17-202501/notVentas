@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { registerCompany, listStoresByCompanyId } from '../controllers/companyController.js';
+import { registerCompany, listStoresByCompanyId, listCompanies } from '../controllers/companyController.js';
 const router = Router();
 
 
@@ -7,7 +7,6 @@ const router = Router();
 router.post('/', async (req, res) => {
   try {
     const companyData = req.body;
-    console.log("Received company data:", companyData);
     if (!companyData || !companyData.admin) {
       return res.status(400).json({ error: "Company data with a name and admin is required" });
     }
@@ -18,6 +17,17 @@ router.post('/', async (req, res) => {
   }
 });
 
+
+// ruta para listar todas las empresas
+router.get('/', async (req, res) => {
+  try {
+    const companies = await listCompanies();
+    res.status(200).json(companies);
+  }
+  catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // obtiene las tiendas de una empresa por su ID
 router.get('/stores', async (req, res) => {
@@ -30,6 +40,5 @@ router.get('/stores', async (req, res) => {
   }
 });
 
-//router.post('/node-ping');
 
 export default router;
