@@ -26,22 +26,22 @@ export default function AdminLayout({ children }) {
                         {/* Botones para ADMIN */}
                         {userRole === 'admin' && (
                             <div className="w-48 flex flex-col ">
-                                <Link href="/admin/companies" className="mb-4 text-white border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
+                                <Link href="/admin/privileges/companies" className="mb-4 text-white border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
                                     EMPRESAS
                                 </Link>
-                                <Link href="/admin/products" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
+                                <Link href="/admin/privileges/products" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
                                     PRODUCTOS
                                 </Link>
-                                <Link href="/admin/stadistics" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
+                                <Link href="/admin/privileges/stadistics" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
                                     ESTADISTICAS
                                 </Link>
-                                <Link href="/admin/maps" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
+                                <Link href="/admin/privileges/maps" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
                                     MAPAS
                                 </Link>
-                                <Link href="/admin/stores" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
+                                <Link href="/admin/privileges/stores" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
                                     VENDEDORES
                                 </Link>
-                                <Link href="/admin/sale" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
+                                <Link href="/admin/privileges/sale" className="mb-4 text-white bg-gray-800 border-1 border-gray-900 hover:bg-gray-900 transition-colors shadow-md rounded-lg p-2">
                                     VENTAS
                                 </Link>
                             </div>

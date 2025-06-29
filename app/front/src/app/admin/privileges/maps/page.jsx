@@ -1,4 +1,4 @@
-import ClientMaps from "../../../components/ClientMaps";
+import ClientMaps from "../../../../components/ClientMaps";
 
 // Tiendas de ejemplo
 const tiendasEjemplo = [

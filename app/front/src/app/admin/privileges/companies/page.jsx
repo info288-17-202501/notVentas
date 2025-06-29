@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { getCompanies } from '../../../api/company.js'; // Asegúrate de que la ruta sea correcta
+import { getCompanies } from '../../../../api/company.js'; // Asegúrate de que la ruta sea correcta
 
 const CompaniesPage = () => {
     const [companies, setCompanies] = useState([]);

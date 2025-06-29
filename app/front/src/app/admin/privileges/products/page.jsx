@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import ProductCard from '../../../components/ProductCard1';
+import ProductCard from '../../../../components/ProductCard1';
 
 const tableStyle = {
     width: '100%',
