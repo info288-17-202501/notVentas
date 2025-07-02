@@ -16,48 +16,47 @@ export async function createProduct({
     
     console.log('category', category);
     console.log('brand', brand);
-    category = await createCategory(category);
-    const category_id = category.id;
-  
-  
-    brand = await createBrand(brand);
-    const brand_id = brand.id;
-    
-    try {
-      // 1. Crear/reutilizar todos los colores
-      const colorRecords = await Promise.all(
-        colors.map(color => createColor({ name: color.name, code: color.code }))
-      );
+    const valCategory = await Validation.category(category.name);
+    const valBrand = await Validation.brand(brand.name);
 
-      // 2. Construir la relación intermedia para la creación
-      const colorConnections = colorRecords.map(color => ({
-        color: {
-          connect: { id: color.id }
+    // 1. Crear/reutilizar todos los colores
+    const colorRecords = await Promise.all(
+      colors.map(color => createColor({ name: color.name, code: color.code }))
+    );
+
+    // 2. Construir la relación intermedia para la creación
+    const colorConnections = colorRecords.map(color => ({
+      color: {
+        connect: { id: color.id }
+      }
+    }));
+
+    // 3. Crear el producto con las relaciones a múltiples colores
+    console.log('Creando producto con los siguientes datos:', {
+      name
+      , description, price, valCategory, valBrand, colors
+    });
+    const newProduct = await prisma.product.create({
+      data: {
+        name,
+        description,
+        price,
+        category: { connect: { id: valCategory.id } },
+        brand: { connect: { id: valBrand.id } },
+        colors: {
+          create: colorConnections
         }
-      }));
+      },
+      include: {
+        colors: { include: { color: true } }
+      }
+    });
 
-      // 3. Crear el producto con las relaciones a múltiples colores
-      const newProduct = await prisma.product.create({
-        data: {
-          name,
-          description,
-          price,
-          category: { connect: { id: category_id } },
-          brand: { connect: { id: brand_id } },
-          colors: {
-            create: colorConnections
-          }
-        },
-        include: {
-          colors: { include: { color: true } }
-        }
-      });
-
-      return newProduct;
-    } catch (error) {
-      console.error(error);
+    if (!newProduct) {
       throw new Error('Error creating product');
     }
+
+    return newProduct;
 }
 
 
@@ -77,8 +76,6 @@ export async function updateProduct(updateData) {
   if (category_id !== undefined) await Validation.category(category_id);
   if (brand_id !== undefined) await Validation.brand(brand_id);
 
-  try {
-    // Actualizar los campos básicos
     const updatedProduct = await prisma.product.update({
       where: { id },
       data: {
@@ -119,6 +116,10 @@ export async function updateProduct(updateData) {
       );
     }
 
+    if (!updatedProduct) {
+      throw new Error('Error updating product');
+    }
+  
     // Retornar el producto actualizado con los colores asociados
     return await prisma.product.findUnique({
       where: { id },
@@ -126,11 +127,6 @@ export async function updateProduct(updateData) {
         colors: { include: { color: true } }
       }
     });
-
-  } catch (error) {
-    console.error(error);
-    throw new Error('Error updating product');
-  }
 }
 
 
@@ -184,11 +180,12 @@ export async function deleteProduct({product_id}) {
 class Validation{
 
 
-    static async brand(brand_id){
-        const existingBrand = await prisma.brand.findUnique({ where: { id: brand_id } });
+    static async brand(name){
+        const existingBrand = await prisma.brand.findUnique({ where: { name } });
         if (!existingBrand) {
             throw new Error('Brand not found');
         }
+        return existingBrand;
     }
 
     static async color(color_id){
@@ -198,18 +195,21 @@ class Validation{
         if (!existingColor) {
         throw new Error('Color not found');
         }
+        return existingColor;
     }
 
-    static async category(category_id){
-        const existingCategory = await prisma.category.findUnique({ where: { id: category_id } });
+    static async category(name){
+        const existingCategory = await prisma.category.findUnique({ where: { name } });
         if (!existingCategory) {
             throw new Error('Category not found');
         }
+        return existingCategory;
     }
-    static async product(product_id){
-        const existingProducto = await prisma.product.findUnique({ where: { id: product_id } });
+    static async product(name){
+        const existingProducto = await prisma.product.findUnique({ where: { name } });
         if (!existingProducto) {
             throw new Error('Product not found');
         }
+        return existingProducto;
     }
 }

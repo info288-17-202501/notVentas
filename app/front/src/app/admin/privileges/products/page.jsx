@@ -2,6 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import ProductCard from '../../../../components/ProductCard1';
 import FormNewProduct from '../../../../components/ui/FormNewProduct';
+import {createProduct} from '../../../../api/product'
+import { createCategory, getCategories} from '../../../../api/category'
+import { createBrand, getBrands } from '../../../../api/brand';
 
 const tableStyle = {
     width: '100%',
@@ -52,24 +55,22 @@ const ProductList = () => {
     }, []);
 
     const handleCreateProduct = async (productData) => {
+        console.log("Enviando producto:", productData);
         try {
-            const response = await fetch('http://localhost:3000/api/product/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(productData),
-            });
-            
-            if (response.ok) {
-                const newProduct = await response.json();
-                setProducts(prev => [...prev, newProduct]);
-                console.log('Producto creado:', newProduct);
-            } else {
-                console.error('Error al crear producto');
-            }
+            // const response = await fetch('http://localhost:3000/api/product/', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify(productData),
+            // });
+
+            const response = await createProduct(productData);
+            setProducts(prev => [...prev, response]);
+            console.log('Producto creado:', response);
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error al crear producto:', error);
+
         }
     };
 

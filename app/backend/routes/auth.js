@@ -3,7 +3,6 @@ import {login, createUser} from '../controllers/user.function.js';
 import { createSessionToken } from '../middleware/auth.js';
 const router = express.Router();
 
-//router.post('/login', loginUserController);
 
 //login de usuario
 router.post('/login', async (req, res) => {

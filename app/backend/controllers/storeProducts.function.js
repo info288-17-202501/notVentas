@@ -1,14 +1,12 @@
 import prisma from '../db/client.js';
 
 export async function addProductToStore({ store_id, product_id, colors }) {
-  try {
+
     if (!Array.isArray(colors) || colors.length === 0) {
       throw new Error("You must provide a colors array");
     }
 
-    const results = [];
-
-    
+    const results = [];    
 
     for (const { color_id, quantity } of colors) {
       
@@ -37,17 +35,16 @@ export async function addProductToStore({ store_id, product_id, colors }) {
 
       results.push(storeProduct);
     }
-
+    if (results.length === 0) {
+      throw new Error('No products were added to the store');
+    }
     return results;
-  } catch (error) {
-    throw new Error(`Error adding product(s) to store: ${error.message}`);
-  }
 }
 
 
 
 export async function updateProductInStore({ store_id, product_id, colors }) {
-    try {
+    
         if (!Array.isArray(colors) || colors.length === 0) {
             throw new Error("You must provide a colors array");
         }
@@ -63,14 +60,14 @@ export async function updateProductInStore({ store_id, product_id, colors }) {
             });
             results.push(updatedStoreProduct);
         }
+        if (results.length === 0) {
+            throw new Error('No products were updated in the store');
+        }
         return results;
-    } catch (error) {
-        throw new Error('Error updating product in store');
-    }
+   
 }
 
 export async function getStoreProducts(store_id) {
-    try {
         const products = await prisma.storeProduct.findMany({
             where: { store_id },
             include: {
@@ -101,21 +98,21 @@ export async function getStoreProducts(store_id) {
                 quantity: item.quantity
             });
         }
-
+        if (Object.keys(grouped).length === 0) {
+            throw new Error('No products found for this store');
+        }
         return Object.values(grouped);
-    } catch (error) {
-        throw new Error('Error fetching store products');
-    }
+  
 }
 
 
 export async function deleteStoreProduct({ store_id, product_id }) {
-  try {
+
     const deleted = await prisma.storeProduct.deleteMany({
       where: { store_id, product_id }
     });
+    if (deleted.count === 0) {
+      throw new Error('No products were deleted from the store');
+    }
     return deleted;
-  } catch (error) {
-    throw new Error('Error deleting product from store');
-  }
 }

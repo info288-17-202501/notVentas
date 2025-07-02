@@ -13,6 +13,8 @@ export async function createStore({ name, coord_latitude, coord_longitude, addre
             company_id
         }
     });
+    if (!newStore) throw new Error('Error creating store');
+    
     return newStore;
 }
 
