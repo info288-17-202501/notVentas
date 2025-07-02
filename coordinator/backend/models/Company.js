@@ -6,6 +6,7 @@ const CompanySchema = new mongoose.Schema({
   description: String,
   address: String,
   phone: String,
+  state: { type: String, enum: ['accepted', 'rejected', 'pending', 'deleted'], default: 'pending' },
   email: { type: String, unique: true, required: true },
 }, {
   timestamps: true,
