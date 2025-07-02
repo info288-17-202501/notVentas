@@ -13,7 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^6.8.2",
+    "@prisma/client": "^6.11.0",
+    "@supabase/supabase-js": "^2.50.2",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -24,6 +25,6 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.2",
-    "prisma": "^6.8.2"
+    "prisma": "^6.11.0"
   }
 }

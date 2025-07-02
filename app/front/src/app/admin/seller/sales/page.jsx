@@ -1,107 +1,145 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Modal from "../../../../components/ui/modal";
+'use client'
 
-const SaleList = () => {
-  const [sales, setSales] = useState([]);
-  const [selectedSale, setSelectedSale] = useState(null);
-  const [saleItems, setSaleItems] = useState([]);
-  const [loadingItems, setLoadingItems] = useState(false);
+import { useEffect, useState } from 'react'
+import CartIcon    from '@/components/CartIcon'
+import CartSidebar from '@/components/CartSidebar'
+import { useCart } from '@/context/CartContext'
+// Asegúrate de que este path coincide exactamente con tu archivo
+import { supabase } from '@/lib/supabaseclient'
+
+export default function SalePage() {
+  const [products,  setProducts]   = useState([])
+  const [quantities,setQuantities] = useState({})
+  const [loading,   setLoading]    = useState(true)
+  const [isOpen,    setIsOpen]     = useState(false)
+  const { addToCart }              = useCart()
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/sale")
-      .then((res) => res.json())
-      .then(setSales)
-      .catch(() => setSales([]));
-  }, []);
+    const load = async () => {
+      try {
+        // === 1) Traigo productos activos y junto su color ===
+        const { data, error } = await supabase
+          .from('products')
+          .select(`
+            product_id,
+            product_name,
+            description,
+            price,
+            is_active,
+            colors (
+              color_name,
+              color_code
+            )
+          `)
+          .eq('is_active', true)
 
-  const handleShowDetails = async (sale) => {
-    setSelectedSale(sale);
-    setLoadingItems(true);
-    try {
-      const res = await fetch(`http://localhost:3000/api/saleitem/${sale.id}`);
-      const data = await res.json();
-      console.log(" informacion de la venta llegada de la API: ", data);
-      setSaleItems(Array.isArray(data.items) ? data.items : []);
-    } catch {
-      setSaleItems([]);
+        if (error) throw error
+
+        // === 2) Mapear al shape que usa tu UI ===
+        const prods = data.map(p => ({
+          id:          p.product_id,
+          name:        p.product_name,
+          description: p.description,
+          price:       p.price,
+          colors:      p.colors,              // [{color_name, color_code}, …]
+          stock:       0                       // si más adelante quieres stock haz otro select
+        }))
+
+        setProducts(prods)
+
+        // === 3) inicializar cantidades en 1 ===
+        const init = {}
+        prods.forEach(p => { init[p.id] = 1 })
+        setQuantities(init)
+
+      } catch (err) {
+        console.error('Error cargando productos:', err)
+      } finally {
+        setLoading(false)
+      }
     }
-    setLoadingItems(false);
-  };
+
+    load()
+  }, [])
+
+  if (loading) {
+    return <p className="text-center mt-8">Cargando productos…</p>
+  }
 
   return (
-    <div className="max-w-3xl mx-auto my-8 font-sans">
-      <h1 className="text-center text-3xl font-bold mb-6">Lista de Ventas</h1>
-      <div className="border border-gray-200 rounded-lg p-6 bg-cyan-50 text-black">
-        {sales.length === 0 ? (
-          <p>No hay ventas registradas.</p>
-        ) : (
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-cyan-50 py-2 px-3 border-b border-gray-200">
-                <th>ID</th>
-                <th>Fecha</th>
-                <th>Cliente</th>
-                <th>Total</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sales.map((sale) => (
-                <tr key={sale.id}>
-                    <td className="py-2 px-3 border-b border-gray-100">{sale.id}</td>
-                    <td className="py-2 px-3 border-b border-gray-100">{sale.date}</td>
-                    <td className="py-2 px-3 border-b border-gray-100">{sale.customer || "N/A"}</td>
-                    <td className="py-2 px-3 border-b border-gray-100">${sale.total}</td>
-                    <td>
-                        <button
-                        className="bg-blue-600 m-1 text-white rounded px-3 py-1 hover:bg-blue-700 transition"
-                        onClick={() => handleShowDetails(sale)}
-                        >
-                        Ver productos
-                        </button>
-                    </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+    <div className="relative min-h-screen p-4 bg-gray-50">
+      {/* Icono del carrito */}
+      <div className="fixed top-4 right-4 z-50">
+        <CartIcon onClick={() => setIsOpen(true)} />
       </div>
 
-      {/* Modal para mostrar productos de la venta */}
-      <Modal open={!!selectedSale} onClose={() => setSelectedSale(null)}>
-        {selectedSale && (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Productos de la venta #{selectedSale.id}</h2>
-            {loadingItems ? (
-              <p>Cargando productos...</p>
-            ) : saleItems.length === 0 ? (
-              <p>No hay productos para esta venta.</p>
-            ) : (
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-blue-100 py-2 px-3 border-b border-gray-200">
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {saleItems.map((item) => (
-                    <tr key={item.id} className="py-2 px-3 border-b border-gray-100">
-                      <td>{item.product?.name || "Producto desconocido"}</td>
-                      <td>{item.quantity}</td>
-                      <td>${item.price}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        )}
-      </Modal>
-    </div>
-  );
-};
+      {/* Sidebar del carrito */}
+      <CartSidebar isOpen={isOpen} onClose={() => setIsOpen(false)} />
 
-export default SaleList;
+      <h1 className="text-3xl font-bold text-orange-700 mb-6">
+        Todos los productos
+      </h1>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {products.map(prod => (
+          <div key={prod.id} className="bg-white rounded-xl shadow p-4 flex flex-col">
+            <h2 className="mt-2 font-semibold">{prod.name}</h2>
+            <p className="text-gray-600 text-sm mb-2">{prod.description}</p>
+            <p className="text-orange-600 font-bold mt-auto">
+              ${new Intl.NumberFormat('es-CL').format(prod.price)}
+            </p>
+
+            {/* Mostrar pelotitas de colores */}
+            <div className="flex gap-2 my-2">
+              {prod.colors.map(c => (
+                <div
+                  key={c.color_code}
+                  title={c.color_name}
+                  className="w-5 h-5 rounded-full border"
+                  style={{ backgroundColor: c.color_code }}
+                />
+              ))}
+            </div>
+
+            {/* Selector de cantidad */}
+            <div className="flex items-center gap-2 mb-2">
+              <button
+                onClick={() =>
+                  setQuantities(q => ({
+                    ...q,
+                    [prod.id]: Math.max(1, q[prod.id] - 1)
+                  }))
+                }
+                className="px-2 py-1 bg-gray-300 rounded"
+              >−</button>
+              <span className="w-6 text-center">{quantities[prod.id]}</span>
+              <button
+                onClick={() =>
+                  setQuantities(q => ({
+                    ...q,
+                    [prod.id]: q[prod.id] + 1
+                  }))
+                }
+                className="px-2 py-1 bg-gray-300 rounded"
+              >+</button>
+            </div>
+
+            <button
+              onClick={() =>
+                addToCart({
+                  ...prod,
+                  quantity: quantities[prod.id],
+                  // tomo el primer color disponible
+                  color: prod.colors[0]?.color_code
+                })
+              }
+              className="mt-3 w-full bg-orange-600 text-white py-1.5 rounded hover:bg-orange-700"
+            >
+              Agregar al carrito
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
