@@ -16,12 +16,15 @@ export async function createColor({name, code}) {
 
 // función para obtener colores
 export async function getColor(){
-    try{
-        const colors = await prisma.color.findMany();
-        return colors;
-    }catch(error){
-        throw new Error('Error connecting to the database')
-    }
+
+    const colors = await prisma.color.findMany();
+
+    if (!colors || colors.length === 0) {
+        throw new Error('No colors found');
+    }   
+    
+    return colors;
+    
 }
 
 class Validation {

@@ -19,10 +19,6 @@ export async function createProduct({
     const valCategory = await Validation.category(category.name);
     const valBrand = await Validation.brand(brand.name);
 
-    // if (!valCategory) {
-        
-    // }
-
     // 1. Crear/reutilizar todos los colores
     const colorRecords = await Promise.all(
       colors.map(color => createColor({ name: color.name, code: color.code }))
@@ -80,8 +76,6 @@ export async function updateProduct(updateData) {
   if (category_id !== undefined) await Validation.category(category_id);
   if (brand_id !== undefined) await Validation.brand(brand_id);
 
-  try {
-    // Actualizar los campos básicos
     const updatedProduct = await prisma.product.update({
       where: { id },
       data: {
@@ -122,6 +116,10 @@ export async function updateProduct(updateData) {
       );
     }
 
+    if (!updatedProduct) {
+      throw new Error('Error updating product');
+    }
+  
     // Retornar el producto actualizado con los colores asociados
     return await prisma.product.findUnique({
       where: { id },
@@ -129,11 +127,6 @@ export async function updateProduct(updateData) {
         colors: { include: { color: true } }
       }
     });
-
-  } catch (error) {
-    console.error(error);
-    throw new Error('Error updating product');
-  }
 }
 
 

@@ -10,33 +10,36 @@ export async function createSale(data) {
 
   const date = new Date().toISOString();
 
-  try {
-    const newSale = await prisma.sale.create({
-      data: {
-        number,
-        date,
-        total,
-        user_id,
-        store_id
-      }
-    });
-    console.log("Items", items);
-    // Asociar los ítems a la venta creada
-    const sale_id = newSale.id;
-    const saleItems = await addSaleItems({sale_id, items});
+  
+  const newSale = await prisma.sale.create({
+    data: {
+      number,
+      date,
+      total,
+      user_id,
+      store_id
+    }
+  });
+  console.log("Items", items);
+  // Asociar los ítems a la venta creada
+  const sale_id = newSale.id;
+  const saleItems = await addSaleItems({sale_id, items});
 
-    return {
-      ...newSale,
-      items: saleItems
-    };
-  } catch (error) {
-    console.error('Error creating sale:', error);
-    throw new Error('Error creating sale in the database');
+  if (!saleItems || saleItems.length === 0) {
+    throw new Error('No sale items were created'); 
   }
+  return {
+    ...newSale,
+    items: saleItems
+  };
+  
 }
 
 export async function getSales() {
     const sales = await prisma.sale.findMany();
+    if (!sales || sales.length === 0) {
+        throw new Error('No sales found');
+    }
     return sales;
 }
 

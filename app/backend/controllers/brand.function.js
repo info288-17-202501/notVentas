@@ -16,12 +16,12 @@ export async function createBrand({name}) {
 
 // Function to get brands
 export async function getBrands() {
-    try {
-        const brands = await prisma.brand.findMany();
-        return brands;
-    } catch (error) {
-        throw new Error('Error connecting to the database');
+    
+    const brands = await prisma.brand.findMany();
+    if (!brands || brands.length === 0) {
+        throw new Error('No brands found');
     }
+    return brands;
 }
 // Function to update a brand
 export async function updateBrand({name, new_name}) {
@@ -29,23 +29,22 @@ export async function updateBrand({name, new_name}) {
         throw new Error('Brand name is required');
     }
     await Validation.brandMustExist(name);
+    const data = {};
+    if (new_name) data.name = new_name;
 
-    try {
-        const data = {};
-        if (new_name) data.name = new_name;
-
-        if (Object.keys(data).length === 0) {
-            throw new Error('No fields to update');
-        }
-
-        const updatedBrand = await prisma.brand.update({
-            where: { name },
-            data
-        });
-        return updatedBrand;
-    } catch (error) {
-        throw new Error(`Error updating brand: ${error.message}`);
+    if (Object.keys(data).length === 0) {
+        throw new Error('No fields to update');
     }
+
+    const updatedBrand = await prisma.brand.update({
+        where: { name },
+        data
+    });
+    if (!updatedBrand) {
+        throw new Error(`Error to update brand`);
+    }
+    return updatedBrand;
+    
 }
 
 // Function to delete a brand

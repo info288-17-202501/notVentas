@@ -16,12 +16,13 @@ export async function createCategory({name}) {
 
 // Function to get categories
 export async function getCategories() {
-    try{
-        const categories = await prisma.category.findMany();
-        return categories;
-    }catch(error){
-        throw new Error('Error connecting to the database')
+
+    const categories = await prisma.category.findMany();
+    if (!categories || categories.length === 0) {
+        throw new Error('No categories found');
     }
+    return categories;
+    
 }
 
 
@@ -31,22 +32,22 @@ export async function updateCategory({name, new_name}) {
         throw new Error('Category name is required');
     }
     await Validation.categoryMustExist(name)
-    try{
-        const data = {};
-        if (new_name) data.name = new_name;
-        
-        if (Object.keys(data).length === 0) {
-            throw new Error('No fields to update');
-        }
-
-        const updatedCategory = await prisma.category.update({
-            where: { name },
-            data
-        });
-        return updatedCategory;
-    }catch(error){
-        throw new Error(`Error updating category: ${error.message}`)
+    const data = {};
+    if (new_name) data.name = new_name;
+    
+    if (Object.keys(data).length === 0) {
+        throw new Error('No fields to update');
     }
+
+    const updatedCategory = await prisma.category.update({
+        where: { name },
+        data
+    });
+    if (!updatedCategory) {
+        throw new Error(`Error to update category`);
+    }
+    return updatedCategory;
+    
 }
 
 
