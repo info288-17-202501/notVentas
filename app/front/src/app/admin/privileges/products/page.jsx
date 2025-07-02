@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import ProductCard from '../../../../components/ProductCard1';
 import FormNewProduct from '../../../../components/ui/FormNewProduct';
 import {createProduct} from '../../../../api/product'
+import { getProducts } from '../../../../api/product';  
 import { createCategory, getCategories} from '../../../../api/category'
 import { createBrand, getBrands } from '../../../../api/brand';
 
@@ -39,32 +40,24 @@ const ProductList = () => {
     const [showForm, setShowForm] = useState(false);
 
     useEffect(() => {
-        fetch('http://localhost:3000/api/product/')
-            .then((res) => res.json())
-            .then((data) => {
-                if (Array.isArray(data)) {
-                    setProducts(data);
-                } else if (Array.isArray(data.products)) {
-                    setProducts(data.products);
-                } else {
-                    setProducts([]);
-                }
-                setLoading(false);
-            })
-            .catch(() => setLoading(false));
-    }, []);
+    const fetchProducts = async () => {
+        try {
+            const productsData = await getProducts();
+            setProducts(Array.isArray(productsData) ? productsData : []);
+        } catch (error) {
+            setProducts([]);
+            console.error('Error al obtener productos:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    fetchProducts();
+}, []);
+
 
     const handleCreateProduct = async (productData) => {
         console.log("Enviando producto:", productData);
         try {
-            // const response = await fetch('http://localhost:3000/api/product/', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify(productData),
-            // });
-
             const response = await createProduct(productData);
             setProducts(prev => [...prev, response]);
             console.log('Producto creado:', response);
