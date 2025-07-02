@@ -70,16 +70,7 @@ const ProductList = () => {
             console.log('Producto creado:', response);
         } catch (error) {
             console.error('Error al crear producto:', error);
-            
-        //     if (response.ok) {
-        //         const newProduct = await response.json();
-        //         setProducts(prev => [...prev, newProduct]);
-        //         console.log('Producto creado:', newProduct);
-        //     } else {
-        //         console.error('Error al crear producto');
-        //     }
-        // } catch (error) {
-        //     console.error('Error:', error);
+
         }
     };
 
