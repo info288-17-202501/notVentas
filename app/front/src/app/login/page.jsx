@@ -22,7 +22,7 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(response.user)); 
       localStorage.setItem("role", response.user.role);
       if (response.user.role === "admin" || response.user.role === "sadmin") {
-        router.push("/admin");
+        router.push("/admin/privileges/companies");
       }
       else if (response.user.role === "seller"){
         router.push("/admin/seller");

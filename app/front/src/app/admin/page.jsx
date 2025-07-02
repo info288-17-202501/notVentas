@@ -6,7 +6,6 @@ const AdminPage = () => {
     
     return (
         <div className="p-8" >
-            <Navbar />
             <h1>Bienvenido al panel de administración</h1>
            <Footer />
         </div>
