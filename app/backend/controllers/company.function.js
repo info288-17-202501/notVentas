@@ -2,36 +2,44 @@ import prisma  from '../db/client.js';
 
 // get companies
 export async function getCompanies() {
-    try {
         const companies = await prisma.company.findMany({
             orderBy: { id: 'asc' },
-        });
-        return companies;
-    } catch (error) {
-        console.error('Error fetching companies:', error);
-        throw error;
+       });
+    if (!companies || companies.length === 0) {
+        throw new Error('No companies found');
     }
+    return companies;
+    
 }
 
 // Create a new company
 export async function createCompany(data) {
-    try {
-        const newCompany = await prisma.company.create({
-            data: {
-                name: data.name,
-                rut: data.rut,
-                is_active: data.is_active ?? true,
-                address_street: data.address_street,
-                address_city: data.address_city,
-                address_state: data.address_state,
-                postal_code: data.postal_code,
-            },
-        });
-        return newCompany;
-    } catch (error) {
-        console.error('Error creating company:', error);
-        throw error;
+
+    const validation = await Validation.companyExists(data.rut);
+    if (validation) {
+        throw new Error('A company with this RUT already exists');
+    }   
+    
+    console.log('Creating company with data:', data);
+
+    const newCompany = await prisma.company.create({
+        data: {
+            name: data.name,
+            rut: data.rut,
+            is_active: data.is_active ?? true,
+            address_street: data.address_street,
+            address_city: data.address_city,
+            address_state: data.address_state,
+            postal_code: data.postal_code,
+        },
+    });
+
+    if (!newCompany) {
+        throw new Error('Error creating company');
     }
+
+    return newCompany;
+    
 }
 
 // Get a company by ID
@@ -86,9 +94,7 @@ class Validation {
     static async companyExists(rut) {
         const company = await prisma.company.findUnique({
                 where: {rut}
-        });
-        if(!company){
-            throw new Error(`Company with rut: ${rut}, does not exist`);
-        }
+        });            
+        return company;
     }
 }
