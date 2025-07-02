@@ -2,16 +2,15 @@ import prisma  from '../db/client.js'; // Import the Prisma client instance
 
 // Function to create a new category
 export async function createCategory({name}) {
-    
-    try {
-        const existingCategory = await Validation.checkCategoryExistence(name);
-        console.log("existe la categoria? ",existingCategory)
-        if (existingCategory) return existingCategory;
+    console.log("creando categoria: ",name)
+    if (!name) {
+        throw new Error('Category name is required');
+    }
+    const existingCategory = await Validation.checkCategoryExistence(name);
+    console.log("existe la categoria? ",existingCategory)
+    if (!existingCategory) {
         const newCategory = await prisma.category.create({data: {name}});
         return newCategory;
-        
-    } catch (error) {
-        throw new Error(`Error creating category: ${error.message}`);
     }
 }
 

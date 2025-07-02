@@ -2,14 +2,16 @@ import prisma  from '../db/client.js';
 
 // función para crear color
 export async function createColor({name, code}) {
-    try{
-        const existingColor = await Validation.checkColorExistence(code) //Valida que solo exista un color
-        if (existingColor) return existingColor;
-        const newColor = await prisma.color.create({data: {name, code}});
-        return newColor;
-    }catch(error){
-        throw new Error('Error connecting to the database')
+
+    const existingColor = await Validation.checkColorExistence(code) //Valida que solo exista un color
+    if (existingColor) return existingColor;
+    const newColor = await prisma.color.create({data: {name, code}});
+
+    if (!newColor) {
+        throw new Error('Error creating color');
     }
+    return newColor;
+
 }
 
 // función para obtener colores
