@@ -6,12 +6,11 @@ export async function createUser( { email, password, name, rut, company_id, stor
     Validation.password(password);
     Validation.role(role);
 
-
-    if (role === 'sadmin' && !company_id) {
+    if (role === 'admin' && !company_id) {
         throw new Error('Company ID is required for super admin');
     }
-    if (role !== 'seller' && !store_id) {
-        throw new Error('Store ID is required for non-seller roles');
+    if (role === 'seller' && !store_id) {
+        throw new Error('Store ID is required for seller roles');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);

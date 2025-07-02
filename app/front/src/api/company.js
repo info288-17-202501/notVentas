@@ -10,3 +10,13 @@ export const getCompanies = async () => {
     throw error;
   }
 };
+
+export const registerCompanyUser = async (data) => {
+  try {
+    const response = await axios.post('/company/register', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error al registrar la empresa:', error);
+    throw error;
+  }
+}
