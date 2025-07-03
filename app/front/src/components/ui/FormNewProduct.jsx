@@ -12,6 +12,7 @@ const initialState = {
     category_id: "",
     brand_id: "",
     colors: [{ name: "", code: "" }],
+    company_id: "", // Asegúrate de que este campo sea necesario
 };
 
 export default function FormNewProduct({ open, onClose, onCreate }) {
@@ -27,6 +28,8 @@ export default function FormNewProduct({ open, onClose, onCreate }) {
             loadColors();
         }
     }, [open]);
+
+    const company_id = JSON.parse(localStorage.getItem('user')).company_id
 
     const loadCategories = async () => {
         try {
@@ -119,7 +122,8 @@ export default function FormNewProduct({ open, onClose, onCreate }) {
             is_active: form.is_active,
             category: { name: selectedCategory?.name },
             brand: { name: selectedBrand?.name },
-            colors: form.colors
+            colors: form.colors,
+            company_id: company_id // Asegúrate de que este campo sea necesario
     };
 
     onCreate(productData);

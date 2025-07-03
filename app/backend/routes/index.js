@@ -10,6 +10,7 @@ import saleRoutes from './sales.js';
 import storeProductRoutes from './storeProducts.js';
 import saleItemRoutes from './saleItem.js';
 import brandRoutes from './brand.js';
+import companyProductRoutes from './companyProducts.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const routes = express.Router();
@@ -28,5 +29,6 @@ routes.use('/category',  categoryRoutes);
 routes.use('/storeproducts',  storeProductRoutes);
 routes.use('/saleitem',  saleItemRoutes);
 routes.use('/brand', brandRoutes);
+routes.use('/companyproducts', companyProductRoutes);
 
 export default routes;
