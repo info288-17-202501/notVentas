@@ -77,15 +77,22 @@ export default function StoresPage() {
     coord_longitude: -73.2459
   });
 
-  // Carga tiendas
   useEffect(() => {
-    const u = JSON.parse(localStorage.getItem('user') || '{}');
-    getStores(u.company_id)
-      .then(r => r.json())
-      .then(j => setStores(j.stores || []))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+      async function fetchStores() {
+        try {
+          const companyId = JSON.parse(localStorage.getItem('user'))?.company_id || localStorage.getItem('companyid');
+          const storesData = await getStores(companyId);
+          console.log('storesData: ', storesData);
+          setStores(Array.isArray(storesData) ? storesData : []);
+          setLoading(false);
+          
+        } catch (err) {
+          console.error('Error cargando tiendas:', err);
+        }
+      }
+  
+      fetchStores();
+    }, []);
 
   // Geocoding OSM en base a street, city, state
   const geocode = useCallback(async () => {

@@ -19,8 +19,6 @@ export default function ProductsPage() {
 
         const productsData = await getProductStore(storeId);
         setProducts(Array.isArray(productsData) ? productsData : []);
-        if (!res.ok) throw new Error('Error al cargar productos');
-          const data = await res.json();
       } catch (err) {
         console.error('Error cargando productos:', err);
       }
