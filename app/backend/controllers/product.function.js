@@ -3,6 +3,7 @@ import prisma  from '../db/client.js';
 import { createColor } from './color.function.js'; // Importa la función createColor
 import { createCategory } from './category.function.js'; // Importa la función createCategory
 import { createBrand } from './brand.function.js'; // Importa la función createBrand
+import { addProductToCompany } from './companyProducts.function.js';
 
 
 export async function createProduct({
@@ -12,12 +13,15 @@ export async function createProduct({
     category,
     brand,
     colors, // lista de colores [{ name, code }, ...]
+    company_id,
     }) {
     
     console.log('category', category);
     console.log('brand', brand);
     const valCategory = await Validation.category(category.name);
     const valBrand = await Validation.brand(brand.name);
+    
+
 
     // 1. Crear/reutilizar todos los colores
     const colorRecords = await Promise.all(
@@ -34,7 +38,7 @@ export async function createProduct({
     // 3. Crear el producto con las relaciones a múltiples colores
     console.log('Creando producto con los siguientes datos:', {
       name
-      , description, price, valCategory, valBrand, colors
+      , description, price, valCategory, valBrand, colors, company_id
     });
     const newProduct = await prisma.product.create({
       data: {
@@ -55,6 +59,9 @@ export async function createProduct({
     if (!newProduct) {
       throw new Error('Error creating product');
     }
+    const productToCompany = await addProductToCompany( {
+      company_id,
+      product_id: newProduct.id});
 
     return newProduct;
 }

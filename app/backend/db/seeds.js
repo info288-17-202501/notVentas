@@ -96,74 +96,82 @@ async function main() {
   if (!negro) {
     negro = await prisma.color.create({ data: { name: 'Negro', code: '#000000' } })
   }
-
-const [licuadora, polera, microondas] = await Promise.all([
-  prisma.product.create({
-    data: {
-      name: 'Licuadora X100',
-      description: 'Potente y silenciosa.',
-      price: 59990,
-      category: { connect: { id: catElectro.id } },
-      brand: { connect: { id: marcaX.id } },
-      colors: {
-        create: [
-          { color: { connect: { id: rojo.id } } }
-        ]
-      },
-      storeProducts: {
-        create: {
-          store: { connect: { id: store.id } },
-          quantity: 10,
-          color: {connect: {id: rojo.id}}
-        }
+  // Crear productos sin companyProducts
+const licuadora = await prisma.product.create({
+  data: {
+    name: 'Licuadora X100',
+    description: 'Potente y silenciosa.',
+    price: 59990,
+    category: { connect: { id: catElectro.id } },
+    brand: { connect: { id: marcaX.id } },
+    colors: {
+      create: [
+        { color: { connect: { id: rojo.id } } }
+      ]
+    },
+    storeProducts: {
+      create: {
+        store: { connect: { id: store.id } },
+        quantity: 10,
+        color: { connect: { id: rojo.id } }
       }
     }
-  }),
+  }
+});
 
-  prisma.product.create({
-    data: {
-      name: 'Polera Azul',
-      description: '100% algodón',
-      price: 14990,
-      category: { connect: { id: catRopa.id } },
-      brand: { connect: { id: marcaY.id } },
-      colors: {
-        create: [
-          { color: { connect: { id: azul.id } } }
-        ]
-      },
-      storeProducts: {
-        create: {
-          store: { connect: { id: store.id } },
-          quantity: 20,
-          color: {connect: {id: azul.id}}
-        }
+const polera = await prisma.product.create({
+  data: {
+    name: 'Polera Azul',
+    description: '100% algodón',
+    price: 14990,
+    category: { connect: { id: catRopa.id } },
+    brand: { connect: { id: marcaY.id } },
+    colors: {
+      create: [
+        { color: { connect: { id: azul.id } } }
+      ]
+    },
+    storeProducts: {
+      create: {
+        store: { connect: { id: store.id } },
+        quantity: 20,
+        color: { connect: { id: azul.id } }
       }
     }
-  }),
+  }
+});
 
-  prisma.product.create({
-    data: {
-      name: 'Microondas 800W',
-      description: 'Compacto y eficiente.',
-      price: 89990,
-      category: { connect: { id: catElectro.id } },
-      brand: { connect: { id: marcaX.id } },
-      colors: {
-        create: [
-          { color: { connect: { id: negro.id } } }
-        ]
-      },
-      storeProducts: {
-        create: {
-          store: { connect: { id: store.id } },
-          quantity: 5,
-          color: {connect: {id: negro.id}}
-        }
+const microondas = await prisma.product.create({
+  data: {
+    name: 'Microondas 800W',
+    description: 'Compacto y eficiente.',
+    price: 89990,
+    category: { connect: { id: catElectro.id } },
+    brand: { connect: { id: marcaX.id } },
+    colors: {
+      create: [
+        { color: { connect: { id: negro.id } } }
+      ]
+    },
+    storeProducts: {
+      create: {
+        store: { connect: { id: store.id } },
+        quantity: 5,
+        color: { connect: { id: negro.id } }
       }
     }
-  })
-]);
+  }
+});
+
+// Crear relaciones CompanyProduct después de que los productos existen
+await prisma.companyProduct.createMany({
+  data: [
+    { company_id: company.id, product_id: licuadora.id },
+    { company_id: company.id, product_id: polera.id },
+    { company_id: company.id, product_id: microondas.id }
+  ]
+});
+
 
   // Venta simulada
   const sale = await prisma.sale.create({

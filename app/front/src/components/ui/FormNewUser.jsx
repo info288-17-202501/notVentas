@@ -42,41 +42,7 @@ export default function FormNewUser({
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
-    // const handleSubmit = (e) => {
-    // e.preventDefault();
 
-    // if (!form.email) {
-    //     alert("El email es requerido para editar el usuario");
-    //     return;
-    // }
-
-    // const userData = {
-    //     email: form.email,
-    //     username: form.name,
-    //     role: form.role,
-    // };
-
-    // // Incluir contraseña solo si fue escrita
-    // if (!userToEdit || form.password?.trim() !== "") {
-    //     userData.password = form.password;
-    // }
-
-    // // Si ampliaste tu backend para rut, store_id, company_id, puedes incluir:
-    // if (form.rut) userData.rut = form.rut;
-    // if (form.role === 'seller' && form.store_id) userData.store_id = Number(form.store_id);
-    // if (companyId || form.company_id) {
-    //     userData.company_id = Number(companyId || form.company_id);
-    // }
-
-    // if (userToEdit) {
-    //     onEdit(userData);
-    // } else {
-    //     onCreate(userData);
-    // }
-
-    // setForm(initialState);
-    // onClose();
-    // };
   const handleSubmit = (e) => {
     e.preventDefault();
 

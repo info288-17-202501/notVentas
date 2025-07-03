@@ -5,8 +5,7 @@ import CartIcon from '@/components/CartIcon';
 import CartSidebar from '@/components/CartSidebar';
 import ProductCardFinal from '@/components/ProductCardFinal';
 import { useCart } from '@/context/CartContext';
-import { getProducts } from '@/api/product';
-import { get } from 'http';
+import { getProductStore } from '@/api/product';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -16,13 +15,12 @@ export default function ProductsPage() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        console.log('storeid: ' + localStorage.getItem('storeid'));
-        const storeId = localStorage.getItem('user')
-        console.log('storeid: ' + storeId);
-        const res = await getProducts(storeId);
+        const storeId = JSON.parse(localStorage.getItem('user'))?.store_id || localStorage.getItem('storeid');
+
+        const productsData = await getProductStore(storeId);
+        setProducts(Array.isArray(productsData) ? productsData : []);
         if (!res.ok) throw new Error('Error al cargar productos');
-        const data = await res.json();
-        setProducts(data.products); // Asumiendo que el backend responde con { products: [...] }
+          const data = await res.json();
       } catch (err) {
         console.error('Error cargando productos:', err);
       }

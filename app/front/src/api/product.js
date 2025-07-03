@@ -7,7 +7,12 @@ export const createProduct = async (data) => {
 }
 
 // Función para obtener la lista de productos
-export const getProducts = async (storeId) => {
-    const response = await axios.get(`/storeproduct/${storeId}`);
+export const getProductStore = async (storeId) => {
+    const response = await axios.get(`/storeproducts/${storeId}`);
+    return response.data.products || [];
+}
+
+export const getProducts = async () => {
+    const response = await axios.get('/product');
     return response.data.products || [];
 }

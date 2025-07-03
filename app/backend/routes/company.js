@@ -14,12 +14,6 @@ router.get('/', async (_, res) => {
 });
 
 
-//route to register a new company
-// This route allows the creation of a new company
-// It expects the company data in the request body
-// The data should include fields like name, rut, address, etc.
-
-
 // Route to create a new company
 router.post('/register', async (req, res) => {
     try {
