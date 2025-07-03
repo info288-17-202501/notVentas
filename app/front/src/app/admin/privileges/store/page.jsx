@@ -1,3 +1,4 @@
+// app/front/src/app/admin/privileges/stores/page.jsx
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -6,17 +7,17 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getStores, createStore } from '@/api/store';
 
-// Carga sólo en cliente
+// Carga dinámica de react-leaflet para que sólo corra en cliente
 const MapContainer = dynamic(
-  () => import('react-leaflet').then(m => m.MapContainer),
+  () => import('react-leaflet').then(mod => mod.MapContainer),
   { ssr: false }
 );
 const TileLayer = dynamic(
-  () => import('react-leaflet').then(m => m.TileLayer),
+  () => import('react-leaflet').then(mod => mod.TileLayer),
   { ssr: false }
 );
 const Marker = dynamic(
-  () => import('react-leaflet').then(m => m.Marker),
+  () => import('react-leaflet').then(mod => mod.Marker),
   { ssr: false }
 );
 import { useMap } from 'react-leaflet';
@@ -32,16 +33,14 @@ L.Icon.Default.mergeOptions({
     'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
 });
 
-// Helper para recentrar el mapa cuando cambian las coords
+// Hook para recentrar mapa
 function RecenterMap({ center }) {
   const map = useMap();
-  useEffect(() => {
-    map.setView(center, map.getZoom());
-  }, [center, map]);
+  map.setView(center, map.getZoom());
   return null;
 }
 
-// Regiones de Chile
+// Lista de regiones de Chile
 const regionesChile = [
   'Arica y Parinacota',
   'Tarapacá',
@@ -62,12 +61,11 @@ const regionesChile = [
 ];
 
 export default function StoresPage() {
-  const [stores, setStores] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [stores, setStores]     = useState([]);
+  const [loading, setLoading]   = useState(true);
   const [openModal, setOpenModal] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving]     = useState(false);
 
-  // Formulario
   const [form, setForm] = useState({
     name: '',
     address_street: '',
@@ -77,32 +75,37 @@ export default function StoresPage() {
     coord_longitude: -73.2459
   });
 
-  // Carga tiendas
+  // Carga inicial de tiendas
   useEffect(() => {
-    const u = JSON.parse(localStorage.getItem('user') || '{}');
-    getStores(u.company_id)
-      .then(r => r.json())
-      .then(j => setStores(j.stores || []))
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.company_id) return setLoading(false);
+
+    getStores(user.company_id)
+      .then(data => {
+        setStores(data.stores || []);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  // Geocoding OSM en base a street, city, state
+  // Geocoding con Nominatim cada vez que cambian calle/ciudad/región
   const geocode = useCallback(async () => {
+    const { address_street, address_city, address_state } = form;
+    if (!address_street || !address_city || !address_state) return;
     const q = encodeURIComponent(
-      `${form.address_street}, ${form.address_city}, ${form.address_state}`
+      `${address_street}, ${address_city}, ${address_state}`
     );
-    if (!form.address_street || !form.address_city || !form.address_state) return;
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${q}`
       );
-      const [first] = await res.json();
-      if (first) {
+      const results = await res.json();
+      if (results.length > 0) {
+        const { lat, lon } = results[0];
         setForm(f => ({
           ...f,
-          coord_latitude:  parseFloat(first.lat),
-          coord_longitude: parseFloat(first.lon)
+          coord_latitude:  parseFloat(lat),
+          coord_longitude: parseFloat(lon)
         }));
       }
     } catch (err) {
@@ -110,22 +113,22 @@ export default function StoresPage() {
     }
   }, [form.address_street, form.address_city, form.address_state]);
 
-  // Envío del formulario
+  // Envía el formulario
   const handleSubmit = async e => {
     e.preventDefault();
     setSaving(true);
+
     try {
-      const u = JSON.parse(localStorage.getItem('user') || '{}');
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
       const payload = {
         ...form,
-        company_id: u.company_id
+        company_id: user.company_id
       };
-      const res = await createStore(payload);
-      if (!res.ok) throw new Error(res.statusText);
-      const { store } = await res.json();
-      setStores(s => [...s, store]);
+      // createStore devuelve directamente el JSON
+      const data = await createStore(payload);
+      // suponemos que el backend responde { store: { … } }
+      setStores(prev => [...prev, data.store]);
       setOpenModal(false);
-      // resetear form
       setForm({
         name: '',
         address_street: '',
@@ -136,7 +139,7 @@ export default function StoresPage() {
       });
     } catch (err) {
       console.error(err);
-      alert('Error creando tienda');
+      alert('Error creando tienda: ' + (err.message || err));
     } finally {
       setSaving(false);
     }
@@ -187,53 +190,25 @@ export default function StoresPage() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block mb-1 text-gray-700">Nombre</label>
-                <input
-                  type="text"
-                  required
-                  value={form.name}
-                  onChange={e =>
-                    setForm(f => ({ ...f, name: e.target.value }))
-                  }
-                  className="w-full border rounded px-3 py-2 text-gray-900"
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1 text-gray-700">
-                  Dirección
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={form.address_street}
-                  onChange={e =>
-                    setForm(f => ({
-                      ...f,
-                      address_street: e.target.value
-                    }))
-                  }
-                  className="w-full border rounded px-3 py-2 text-gray-900"
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1 text-gray-700">Ciudad</label>
-                <input
-                  type="text"
-                  required
-                  value={form.address_city}
-                  onChange={e =>
-                    setForm(f => ({
-                      ...f,
-                      address_city: e.target.value
-                    }))
-                  }
-                  onBlur={geocode}
-                  className="w-full border rounded px-3 py-2 text-gray-900"
-                />
-              </div>
+              {[
+                { label: 'Nombre',       field: 'name',           type:'text' },
+                { label: 'Dirección',    field: 'address_street', type:'text' },
+                { label: 'Ciudad',       field: 'address_city',   type:'text' },
+              ].map(({label,field,type}) => (
+                <div key={field}>
+                  <label className="block mb-1 text-gray-700">{label}</label>
+                  <input
+                    type={type}
+                    required
+                    value={form[field]}
+                    onChange={e => setForm(f => ({
+                      ...f, [field]: e.target.value
+                    }))}
+                    onBlur={geocode}
+                    className="w-full border rounded px-3 py-2 text-gray-900"
+                  />
+                </div>
+              ))}
 
               <div>
                 <label className="block mb-1 text-gray-700">
@@ -242,20 +217,15 @@ export default function StoresPage() {
                 <select
                   required
                   value={form.address_state}
-                  onChange={e =>
-                    setForm(f => ({
-                      ...f,
-                      address_state: e.target.value
-                    }))
-                  }
+                  onChange={e => setForm(f => ({
+                    ...f, address_state: e.target.value
+                  }))}
                   onBlur={geocode}
                   className="w-full border rounded px-3 py-2 text-gray-900"
                 >
                   <option value="">Seleccione una región</option>
                   {regionesChile.map(r => (
-                    <option key={r} value={r}>
-                      {r}
-                    </option>
+                    <option key={r} value={r}>{r}</option>
                   ))}
                 </select>
               </div>
@@ -270,19 +240,18 @@ export default function StoresPage() {
                     zoom={13}
                     style={{ height: '100%', width: '100%' }}
                     whenCreated={map => {
-                      map.on('click', e =>
+                      map.on('click', e => {
+                        const { lat, lng } = e.latlng;
                         setForm(f => ({
                           ...f,
-                          coord_latitude:  e.latlng.lat,
-                          coord_longitude: e.latlng.lng
-                        }))
-                      );
+                          coord_latitude:  lat,
+                          coord_longitude: lng
+                        }));
+                      });
                     }}
                   >
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                    <RecenterMap
-                      center={[form.coord_latitude, form.coord_longitude]}
-                    />
+                    <RecenterMap center={[form.coord_latitude, form.coord_longitude]} />
                     <Marker
                       position={[form.coord_latitude, form.coord_longitude]}
                       draggable
