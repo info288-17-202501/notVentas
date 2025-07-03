@@ -9,3 +9,8 @@ export const getUsers = async () => {
     const response = await axios.get('/register');
     return response.data.users;
 };
+
+export const editUser = async (data) => {
+    const response = await axios.put('/edit-user', data);
+    return response.data;
+}
