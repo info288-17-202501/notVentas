@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { getCompanies } from '../../../../api/company.js'; // Asegúrate de que la ruta sea correcta
+import { getCompanyInfo } from '../../../../api/company.js'; // Asegúrate de que la ruta sea correcta
 
 const CompaniesPage = () => {
     const [companies, setCompanies] = useState([]);
@@ -9,9 +9,13 @@ const CompaniesPage = () => {
     
     useEffect(() => {
         const fetchCompanies = async () => {
+
             try {
-                const company = await getCompanies();
-                setCompanies(company);
+                const companyId = JSON.parse(localStorage.getItem('user'))?.company_id;
+                const company = await getCompanyInfo(companyId);
+                console.log("Company data:", company);
+                setCompanies([company]);
+            
             } catch (err) {
                 setError(err.message);
             } finally {
