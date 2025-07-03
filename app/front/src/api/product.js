@@ -12,7 +12,7 @@ export const getProductStore = async (storeId) => {
     return response.data.products || [];
 }
 
-export const getProducts = async () => {
-    const response = await axios.get('/product');
+export const getProducts = async (companyId) => {
+    const response = await axios.get(`/product/${companyId}`);
     return response.data.products || [];
 }
