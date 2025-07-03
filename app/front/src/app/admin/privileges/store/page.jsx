@@ -1,99 +1,326 @@
-// app/front/src/app/admin/privileges/stores/page.jsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { getStores, createStore } from '@/api/store';
 
+// Carga sólo en cliente
+const MapContainer = dynamic(
+  () => import('react-leaflet').then(m => m.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic(
+  () => import('react-leaflet').then(m => m.TileLayer),
+  { ssr: false }
+);
+const Marker = dynamic(
+  () => import('react-leaflet').then(m => m.Marker),
+  { ssr: false }
+);
+import { useMap } from 'react-leaflet';
+
+// Fix iconos Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon-2x.png',
+  iconUrl:
+    'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png',
+  shadowUrl:
+    'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
+});
+
+// Helper para recentrar el mapa cuando cambian las coords
+function RecenterMap({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, map.getZoom());
+  }, [center, map]);
+  return null;
+}
+
+// Regiones de Chile
+const regionesChile = [
+  'Arica y Parinacota',
+  'Tarapacá',
+  'Antofagasta',
+  'Atacama',
+  'Coquimbo',
+  'Valparaíso',
+  'Metropolitana',
+  'O’Higgins',
+  'Maule',
+  'Ñuble',
+  'Bío Bío',
+  'Araucanía',
+  'Los Ríos',
+  'Los Lagos',
+  'Aysén',
+  'Magallanes y la Antártica'
+];
+
 export default function StoresPage() {
-  const [stores, setStores]   = useState([]);
+  const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm]       = useState({
+  const [openModal, setOpenModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Formulario
+  const [form, setForm] = useState({
     name: '',
-    coord_latitude: '',
-    coord_longitude: '',
     address_street: '',
     address_city: '',
     address_state: '',
-    postal_code: ''
+    coord_latitude:  -39.8142,
+    coord_longitude: -73.2459
   });
-  const [saving, setSaving]   = useState(false);
 
+  // Carga tiendas
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const compId = user.company_id;
-    getStores(compId)
-      .then(res => res.json())
-      .then(json => setStores(json.stores || []))
+    const u = JSON.parse(localStorage.getItem('user') || '{}');
+    getStores(u.company_id)
+      .then(r => r.json())
+      .then(j => setStores(j.stores || []))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
+  // Geocoding OSM en base a street, city, state
+  const geocode = useCallback(async () => {
+    const q = encodeURIComponent(
+      `${form.address_street}, ${form.address_city}, ${form.address_state}`
+    );
+    if (!form.address_street || !form.address_city || !form.address_state) return;
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${q}`
+      );
+      const [first] = await res.json();
+      if (first) {
+        setForm(f => ({
+          ...f,
+          coord_latitude:  parseFloat(first.lat),
+          coord_longitude: parseFloat(first.lon)
+        }));
+      }
+    } catch (err) {
+      console.error('Geocoding error', err);
+    }
+  }, [form.address_street, form.address_city, form.address_state]);
+
+  // Envío del formulario
   const handleSubmit = async e => {
     e.preventDefault();
     setSaving(true);
     try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const compId = user.company_id;
-      const payload = { ...form, company_id: compId };
+      const u = JSON.parse(localStorage.getItem('user') || '{}');
+      const payload = {
+        ...form,
+        company_id: u.company_id
+      };
       const res = await createStore(payload);
       if (!res.ok) throw new Error(res.statusText);
-      const json = await res.json();
-      setStores(prev => [...prev, json.store]);
+      const { store } = await res.json();
+      setStores(s => [...s, store]);
+      setOpenModal(false);
+      // resetear form
       setForm({
         name: '',
-        coord_latitude: '',
-        coord_longitude: '',
         address_street: '',
         address_city: '',
         address_state: '',
-        postal_code: ''
+        coord_latitude:  -39.8142,
+        coord_longitude: -73.2459
       });
     } catch (err) {
       console.error(err);
-      alert('Error al crear la tienda');
+      alert('Error creando tienda');
     } finally {
       setSaving(false);
     }
   };
 
   if (loading) {
-    return <p className="p-4 text-gray-600">Cargando tiendas…</p>;
+    return <p className="p-6 text-gray-700">Cargando tiendas…</p>;
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-gray-100 rounded-xl shadow">
-      <h1 className="text-2xl font-bold mb-4">Tiendas</h1>
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">Tiendas</h1>
+        <button
+          onClick={() => setOpenModal(true)}
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Agregar Tienda
+        </button>
+      </div>
 
-      <ul className="mb-6 space-y-2">
+      <ul className="space-y-4">
         {stores.map(s => (
-          <li key={s.id} className="border p-3 rounded bg-white">
-            <strong>{s.name}</strong><br/>
-            {s.address_street}, {s.address_city} ({s.postal_code})
+          <li
+            key={s.id}
+            className="bg-white p-4 rounded-lg shadow-sm text-gray-800"
+          >
+            <strong className="block text-lg">{s.name}</strong>
+            <span className="text-gray-600">
+              {s.address_street}, {s.address_city} —{' '}
+              <em className="text-sm">{s.address_state}</em>
+            </span>
           </li>
         ))}
       </ul>
 
-      <h2 className="text-xl font-semibold mb-2">Nueva tienda</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1">Nombre</label>
-          <input
-            type="text"
-            required
-            value={form.name}
-            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            className="w-full border px-2 py-1 rounded"
-          />
+      {openModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
+            <button
+              onClick={() => setOpenModal(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+              Agregar Tienda
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block mb-1 text-gray-700">Nombre</label>
+                <input
+                  type="text"
+                  required
+                  value={form.name}
+                  onChange={e =>
+                    setForm(f => ({ ...f, name: e.target.value }))
+                  }
+                  className="w-full border rounded px-3 py-2 text-gray-900"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-gray-700">
+                  Dirección
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.address_street}
+                  onChange={e =>
+                    setForm(f => ({
+                      ...f,
+                      address_street: e.target.value
+                    }))
+                  }
+                  className="w-full border rounded px-3 py-2 text-gray-900"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-gray-700">Ciudad</label>
+                <input
+                  type="text"
+                  required
+                  value={form.address_city}
+                  onChange={e =>
+                    setForm(f => ({
+                      ...f,
+                      address_city: e.target.value
+                    }))
+                  }
+                  onBlur={geocode}
+                  className="w-full border rounded px-3 py-2 text-gray-900"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-gray-700">
+                  Región / Estado
+                </label>
+                <select
+                  required
+                  value={form.address_state}
+                  onChange={e =>
+                    setForm(f => ({
+                      ...f,
+                      address_state: e.target.value
+                    }))
+                  }
+                  onBlur={geocode}
+                  className="w-full border rounded px-3 py-2 text-gray-900"
+                >
+                  <option value="">Seleccione una región</option>
+                  {regionesChile.map(r => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block mb-1 text-gray-700">
+                  Ubicación (arrastra el pin o haz click)
+                </label>
+                <div className="h-64 rounded overflow-hidden">
+                  <MapContainer
+                    center={[form.coord_latitude, form.coord_longitude]}
+                    zoom={13}
+                    style={{ height: '100%', width: '100%' }}
+                    whenCreated={map => {
+                      map.on('click', e =>
+                        setForm(f => ({
+                          ...f,
+                          coord_latitude:  e.latlng.lat,
+                          coord_longitude: e.latlng.lng
+                        }))
+                      );
+                    }}
+                  >
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <RecenterMap
+                      center={[form.coord_latitude, form.coord_longitude]}
+                    />
+                    <Marker
+                      position={[form.coord_latitude, form.coord_longitude]}
+                      draggable
+                      eventHandlers={{
+                        dragend: e => {
+                          const ll = e.target.getLatLng();
+                          setForm(f => ({
+                            ...f,
+                            coord_latitude:  ll.lat,
+                            coord_longitude: ll.lng
+                          }));
+                        },
+                      }}
+                    />
+                  </MapContainer>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  type="button"
+                  onClick={() => setOpenModal(false)}
+                  className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  {saving ? 'Guardando…' : 'Crear Tienda'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-        {/* … resto de inputs igual que antes … */}
-        <button
-          type="submit"
-          disabled={saving}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          {saving ? 'Guardando…' : 'Crear tienda'}
-        </button>
-      </form>
+      )}
     </div>
   );
 }

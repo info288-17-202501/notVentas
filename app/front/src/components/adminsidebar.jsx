@@ -3,37 +3,45 @@
 
 import Link from 'next/link';
 import { useLogout } from '@/hooks/useLogout';
+import { usePathname } from 'next/navigation';
 
 export default function AdminSidebar() {
   const { logout } = useLogout();
+  const pathname   = usePathname();
+
+  const links = [
+    { href: '/admin/privileges/companies', label: 'EMPRESAS' },
+    { href: '/admin/privileges/products',  label: 'PRODUCTOS' },
+    { href: '/admin/privileges/sale',      label: 'VENTAS' },
+    { href: '/admin/privileges/stores',    label: 'VENDEDORES' }, // mantiene tu ruta actual
+    { href: '/admin/privileges/tiendas',   label: 'TIENDAS'   }, // nueva ruta de ubicaciones
+    { href: '/admin/privileges/stadistics',label: 'ESTADÍSTICAS' },
+    { href: '/admin/privileges/maps',      label: 'MAPAS' },
+  ];
+
   return (
-    <aside className="w-72 bg-gray-800 p-6 flex flex-col">
-      <div className="mb-8 text-center">
-        <span className="text-white text-xl font-bold">HOLA ADMIN</span>
-      </div>
+    <aside className="w-72 bg-gray-800 flex flex-col justify-between h-screen p-6">
       <nav className="flex flex-col gap-4">
-        <Link href="/admin/privileges/companies" className="text-white hover:text-green-300">
-          EMPRESAS
-        </Link>
-        <Link href="/admin/privileges/products" className="text-white hover:text-green-300">
-          PRODUCTOS
-        </Link>
-        <Link href="/admin/privileges/stores" className="text-white hover:text-green-300">
-          TIENDAS
-        </Link>
-        <Link href="/admin/privileges/sale" className="text-white hover:text-green-300">
-          VENTAS
-        </Link>
-        <Link href="/admin/privileges/stadistics" className="text-white hover:text-green-300">
-          ESTADÍSTICAS
-        </Link>
-        <Link href="/admin/privileges/maps" className="text-white hover:text-green-300">
-          MAPAS
-        </Link>
+        {links.map(({ href, label }) => {
+          const active = pathname === href;
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`block w-full text-center py-2 rounded ${
+                active
+                  ? 'bg-gray-700 text-white'
+                  : 'text-white hover:bg-gray-700'
+              }`}
+            >
+              {label}
+            </Link>
+          );
+        })}
       </nav>
       <button
         onClick={logout}
-        className="mt-auto bg-red-500 text-white py-2 rounded hover:bg-red-600"
+        className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg p-2 w-full"
       >
         SALIR
       </button>
