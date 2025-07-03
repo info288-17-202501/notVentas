@@ -1,9 +1,12 @@
+// src/components/CartSidebar.jsx
 'use client';
 
-import { useCart } from '@/context/CartContext';
-import { X } from 'lucide-react';
 import { useState } from 'react';
+import { X } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
 import AlertDialog from './AlertDialog';
+import { createSale } from '@/api/sale';
+import { updateStock } from '@/api/stock';
 
 export default function CartSidebar({ isOpen, onClose }) {
   const {
@@ -13,52 +16,55 @@ export default function CartSidebar({ isOpen, onClose }) {
     clearCart,
   } = useCart();
 
-  const [showSummary, setShowSummary] = useState(false);
-  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState(null);
-  const [savingSale, setSavingSale] = useState(false);
+  const [showSummary, setShowSummary]     = useState(false);
+  const [showDeleteAlert, setShowDelete]  = useState(false);
+  const [itemToDelete, setItemToDelete]   = useState(null);
+  const [savingSale, setSavingSale]       = useState(false);
 
-  // Calcula el total
+  // Total de la venta
   const total = cartItems.reduce(
-    (acc, item) => acc + item.quantity * item.price,
+    (sum, item) => sum + item.quantity * item.price,
     0
   );
 
-  // Envía la venta al backend y resetea el carrito
+  // Confirmar venta: crea la venta y descuenta stock
   const handleConfirmSale = async () => {
     setSavingSale(true);
     try {
-      // Obtén user y store del localStorage
-      const u = JSON.parse(localStorage.getItem('user') || '{}');
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
       const payload = {
+        user_id:  user.id,
+        store_id: user.store_id,
         total,
-        user_id: u.id,
-        store_id: u.store_id,
-        items: cartItems.map((item) => ({
-          product_id: item.id,
-          quantity: item.quantity,
-          price: item.price,
-          color: item.color,
-        })),
+        saleItems: cartItems.map(i => ({
+          product_id: i.id,
+          color_id:   i.colorId,
+          quantity:   i.quantity,
+          price:      i.price,
+        }))
       };
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/sale`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        }
+      // 1️⃣ Crear la venta
+      await createSale(payload);
+
+      // 2️⃣ Descontar stock en paralelo
+      await Promise.all(
+        cartItems.map(i =>
+          updateStock({
+            store_id:   user.store_id,
+            product_id: i.id,
+            color_id:   i.colorId,
+            quantity:  -i.quantity
+          })
+        )
       );
 
-      if (!res.ok) throw new Error('Error al crear la venta');
-      // Opcional: leer respuesta
-      // const json = await res.json();
-
-      alert('✅ Venta realizada con éxito');
+      // 3️⃣ Reset carrito y cerrar modal
       clearCart();
       setShowSummary(false);
       onClose();
+
+      alert('✅ Venta realizada con éxito');
     } catch (err) {
       console.error(err);
       alert('❌ Error al procesar la venta');
@@ -73,21 +79,21 @@ export default function CartSidebar({ isOpen, onClose }) {
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}
     >
+      {/* Header */}
       <div className="p-4 flex justify-between items-center border-b">
         <h2 className="text-xl font-semibold">Tu carrito</h2>
-        <button onClick={onClose}>
-          <X className="w-6 h-6 text-gray-600" />
-        </button>
+        <button onClick={onClose}><X className="w-6 h-6 text-gray-600" /></button>
       </div>
 
+      {/* Items */}
       <div className="p-4 overflow-y-auto h-[calc(100%-140px)]">
         {cartItems.length === 0 ? (
           <p className="text-gray-500">El carrito está vacío.</p>
         ) : (
           <ul className="space-y-4">
-            {cartItems.map((item, index) => (
+            {cartItems.map((item, idx) => (
               <li
-                key={index}
+                key={idx}
                 className="border p-2 rounded-md flex flex-col gap-1 bg-white shadow-sm"
               >
                 <div className="flex justify-between items-center">
@@ -95,7 +101,7 @@ export default function CartSidebar({ isOpen, onClose }) {
                   <button
                     onClick={() => {
                       setItemToDelete(item);
-                      setShowDeleteAlert(true);
+                      setShowDelete(true);
                     }}
                   >
                     🗑️
@@ -105,24 +111,16 @@ export default function CartSidebar({ isOpen, onClose }) {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() =>
-                        updateQuantity(
-                          item.id,
-                          item.color,
-                          item.quantity - 1
-                        )
+                        updateQuantity(item.id, item.color, item.quantity - 1)
                       }
                       className="px-2 py-1 bg-gray-200 rounded text-sm"
                     >
-                      -
+                      −
                     </button>
                     <span className="font-medium">{item.quantity}</span>
                     <button
                       onClick={() =>
-                        updateQuantity(
-                          item.id,
-                          item.color,
-                          item.quantity + 1
-                        )
+                        updateQuantity(item.id, item.color, item.quantity + 1)
                       }
                       className="px-2 py-1 bg-gray-200 rounded text-sm"
                     >
@@ -140,6 +138,7 @@ export default function CartSidebar({ isOpen, onClose }) {
         )}
       </div>
 
+      {/* Footer: totales y acciones */}
       {cartItems.length > 0 && (
         <div className="p-4 border-t flex flex-col gap-2">
           <div className="text-right font-semibold text-orange-700">
@@ -160,27 +159,23 @@ export default function CartSidebar({ isOpen, onClose }) {
         </div>
       )}
 
-      {/* Modal resumen */}
+      {/* Modal de resumen */}
       {showSummary && (
         <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
           <div className="bg-white text-gray-800 p-6 rounded shadow-md w-[90%] max-w-lg">
             <h3 className="text-xl font-bold mb-4">Resumen de la venta</h3>
             <ul className="divide-y max-h-60 overflow-y-auto mb-4">
-              {cartItems.map((item, idx) => (
-                <li key={idx} className="py-2 text-sm">
+              {cartItems.map((item, i) => (
+                <li key={i} className="py-2 text-sm">
                   <div className="flex justify-between">
                     <span>{item.name}</span>
                     <span>
-                      $
-                      {(item.price * item.quantity).toLocaleString(
-                        'es-CL'
-                      )}
+                      ${(item.price * item.quantity).toLocaleString('es-CL')}
                     </span>
                   </div>
                   <div className="text-gray-600 flex justify-between text-xs">
                     <span>
-                      {item.quantity} x $
-                      {item.price.toLocaleString('es-CL')}
+                      {item.quantity} x ${item.price.toLocaleString('es-CL')}
                     </span>
                     <span>Color: {item.color}</span>
                   </div>
@@ -209,18 +204,18 @@ export default function CartSidebar({ isOpen, onClose }) {
         </div>
       )}
 
-      {/* Modal de confirmación de eliminación */}
+      {/* Dialogo de eliminación */}
       {showDeleteAlert && itemToDelete && (
         <AlertDialog
           title="¿Seguro que quieres eliminar el producto?"
           buttons={{
             Eliminar: () => {
               removeFromCart(itemToDelete.id, itemToDelete.color);
-              setShowDeleteAlert(false);
+              setShowDelete(false);
               setItemToDelete(null);
             },
             Cancelar: () => {
-              setShowDeleteAlert(false);
+              setShowDelete(false);
               setItemToDelete(null);
             },
           }}
