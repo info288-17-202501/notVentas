@@ -82,8 +82,11 @@ export default function StoresPage() {
         try {
           const companyId = JSON.parse(localStorage.getItem('user'))?.company_id || localStorage.getItem('companyid');
           const storesData = await getStores(companyId);
-          console.log('storesData: ', storesData);
           setStores(Array.isArray(storesData) ? storesData : []);
+            if (!storesData || storesData.length === 0) {
+            alert('No hay tiendas registradas para esta empresa.');
+            }
+
           setLoading(false);
           
         } catch (err) {

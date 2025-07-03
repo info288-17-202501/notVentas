@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { getStores, createStore, updateStore, deleteStore } from '../controllers/store.function.js';
+import { getStoresByCompany } from '../controllers/store.function.js';
 
 const router = express.Router();
 
@@ -10,6 +11,16 @@ router.get('/', async (req, res) => {
         res.status(200).json(stores);
     } catch (error) {
         res.status(500).json({ error: 'Error fetching stores' });
+    }
+});
+
+router.get('/:id', async (req, res) => {
+    try {
+        const companyId = parseInt(req.params.id);
+        const stores = await getStoresByCompany(companyId);
+        res.status(200).json(stores);
+    } catch (error) {
+        res.status(500).json({ error: error.message || 'Error fetching stores by company' });
     }
 });
 
