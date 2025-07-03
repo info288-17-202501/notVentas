@@ -1,4 +1,3 @@
-// app/front/src/app/admin/privileges/stores/page.jsx
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -7,18 +6,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getStores, createStore } from '@/api/store';
 
-// Leaflet icons
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon-2x.png',
-  iconUrl:
-    'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png',
-  shadowUrl:
-    'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
-});
-
-// Dinámicos para ssr: false
+// Carga sólo en cliente
 const MapContainer = dynamic(
   () => import('react-leaflet').then(m => m.MapContainer),
   { ssr: false }
@@ -31,29 +19,55 @@ const Marker = dynamic(
   () => import('react-leaflet').then(m => m.Marker),
   { ssr: false }
 );
-const useMap = dynamic(
-  () => import('react-leaflet').then(m => m.useMap),
-  { ssr: false }
-);
+import { useMap } from 'react-leaflet';
 
+// Fix iconos Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon-2x.png',
+  iconUrl:
+    'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png',
+  shadowUrl:
+    'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
+});
+
+// Helper para recentrar el mapa cuando cambian las coords
 function RecenterMap({ center }) {
   const map = useMap();
-  map.setView(center, map.getZoom());
+  useEffect(() => {
+    map.setView(center, map.getZoom());
+  }, [center, map]);
   return null;
 }
 
+// Regiones de Chile
 const regionesChile = [
-  'Arica y Parinacota','Tarapacá','Antofagasta','Atacama','Coquimbo',
-  'Valparaíso','Metropolitana','O’Higgins','Maule','Ñuble','Bío Bío',
-  'Araucanía','Los Ríos','Los Lagos','Aysén','Magallanes y la Antártica'
+  'Arica y Parinacota',
+  'Tarapacá',
+  'Antofagasta',
+  'Atacama',
+  'Coquimbo',
+  'Valparaíso',
+  'Metropolitana',
+  'O’Higgins',
+  'Maule',
+  'Ñuble',
+  'Bío Bío',
+  'Araucanía',
+  'Los Ríos',
+  'Los Lagos',
+  'Aysén',
+  'Magallanes y la Antártica'
 ];
 
 export default function StoresPage() {
-  const [stores, setStores]     = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [stores, setStores] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
-  const [saving, setSaving]     = useState(false);
+  const [saving, setSaving] = useState(false);
 
+  // Formulario
   const [form, setForm] = useState({
     name: '',
     address_street: '',
@@ -63,30 +77,22 @@ export default function StoresPage() {
     coord_longitude: -73.2459
   });
 
-  // 1) Carga inicial
+  // Carga tiendas
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (!user.company_id) {
-      setLoading(false);
-      return;
-    }
-    getStores(user.company_id)
-      .then(data => {
-        // detectamos si viene como array o dentro de .stores
-        const list = Array.isArray(data) ? data : data.stores;
-        setStores(list || []);
-      })
+    const u = JSON.parse(localStorage.getItem('user') || '{}');
+    getStores(u.company_id)
+      .then(r => r.json())
+      .then(j => setStores(j.stores || []))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  // 2) geocoding simple al salir del campo
+  // Geocoding OSM en base a street, city, state
   const geocode = useCallback(async () => {
-    const { address_street, address_city, address_state } = form;
-    if (!address_street || !address_city || !address_state) return;
     const q = encodeURIComponent(
-      `${address_street}, ${address_city}, ${address_state}`
+      `${form.address_street}, ${form.address_city}, ${form.address_state}`
     );
+    if (!form.address_street || !form.address_city || !form.address_state) return;
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${q}`
@@ -104,20 +110,22 @@ export default function StoresPage() {
     }
   }, [form.address_street, form.address_city, form.address_state]);
 
-  // 3) envío del formulario
+  // Envío del formulario
   const handleSubmit = async e => {
     e.preventDefault();
     setSaving(true);
     try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const payload = { ...form, company_id: user.company_id };
-      // createStore con axios devuelve response.data
-      const resp = await createStore(payload);
-      // si tu backend envía { store: {...} } lo cogemos, si envía {...} directo lo cogemos
-      const nuevo = resp.store ?? resp;
-      setStores(prev => [...prev, nuevo]);
+      const u = JSON.parse(localStorage.getItem('user') || '{}');
+      const payload = {
+        ...form,
+        company_id: u.company_id
+      };
+      const res = await createStore(payload);
+      if (!res.ok) throw new Error(res.statusText);
+      const { store } = await res.json();
+      setStores(s => [...s, store]);
       setOpenModal(false);
-      // reset
+      // resetear form
       setForm({
         name: '',
         address_street: '',
@@ -128,7 +136,7 @@ export default function StoresPage() {
       });
     } catch (err) {
       console.error(err);
-      alert('Error creando tienda: ' + err);
+      alert('Error creando tienda');
     } finally {
       setSaving(false);
     }
@@ -179,25 +187,53 @@ export default function StoresPage() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {[
-                { label: 'Nombre',    field: 'name' },
-                { label: 'Dirección', field: 'address_street' },
-                { label: 'Ciudad',    field: 'address_city' },
-              ].map(({label,field}) => (
-                <div key={field}>
-                  <label className="block mb-1 text-gray-700">{label}</label>
-                  <input
-                    type="text"
-                    required
-                    value={form[field]}
-                    onChange={e =>
-                      setForm(f => ({ ...f, [field]: e.target.value }))
-                    }
-                    onBlur={geocode}
-                    className="w-full border rounded px-3 py-2 text-gray-900"
-                  />
-                </div>
-              ))}
+              <div>
+                <label className="block mb-1 text-gray-700">Nombre</label>
+                <input
+                  type="text"
+                  required
+                  value={form.name}
+                  onChange={e =>
+                    setForm(f => ({ ...f, name: e.target.value }))
+                  }
+                  className="w-full border rounded px-3 py-2 text-gray-900"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-gray-700">
+                  Dirección
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.address_street}
+                  onChange={e =>
+                    setForm(f => ({
+                      ...f,
+                      address_street: e.target.value
+                    }))
+                  }
+                  className="w-full border rounded px-3 py-2 text-gray-900"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-gray-700">Ciudad</label>
+                <input
+                  type="text"
+                  required
+                  value={form.address_city}
+                  onChange={e =>
+                    setForm(f => ({
+                      ...f,
+                      address_city: e.target.value
+                    }))
+                  }
+                  onBlur={geocode}
+                  className="w-full border rounded px-3 py-2 text-gray-900"
+                />
+              </div>
 
               <div>
                 <label className="block mb-1 text-gray-700">
@@ -207,7 +243,10 @@ export default function StoresPage() {
                   required
                   value={form.address_state}
                   onChange={e =>
-                    setForm(f => ({ ...f, address_state: e.target.value }))
+                    setForm(f => ({
+                      ...f,
+                      address_state: e.target.value
+                    }))
                   }
                   onBlur={geocode}
                   className="w-full border rounded px-3 py-2 text-gray-900"
@@ -231,13 +270,13 @@ export default function StoresPage() {
                     zoom={13}
                     style={{ height: '100%', width: '100%' }}
                     whenCreated={map => {
-                      map.on('click', e => {
+                      map.on('click', e =>
                         setForm(f => ({
                           ...f,
                           coord_latitude:  e.latlng.lat,
                           coord_longitude: e.latlng.lng
-                        }));
-                      });
+                        }))
+                      );
                     }}
                   >
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -255,7 +294,7 @@ export default function StoresPage() {
                             coord_latitude:  ll.lat,
                             coord_longitude: ll.lng
                           }));
-                        }
+                        },
                       }}
                     />
                   </MapContainer>
