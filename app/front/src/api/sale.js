@@ -26,3 +26,5 @@ export const getSaleById = async (id) => {
     console.log("Sale data fetched:", response.data);
     return response.data;
 }
+
+
