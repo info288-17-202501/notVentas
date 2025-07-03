@@ -16,3 +16,22 @@ export const getProducts = async (companyId) => {
     const response = await axios.get(`/product/${companyId}`);
     return response.data.products || [];
 }
+
+
+/**
+ * Ajusta el stock de un producto en una tienda.
+ * @param {{ store_id: number, product_id: number, color_id: number, quantity: number }} payload
+ *   quantity puede ser positivo (sumar) o negativo (restar).
+ */
+export const updateStock = async ({ store_id, product_id, color_id, quantity }) => {
+  const res = await axios.patch('/storeproducts', {
+    store_id,
+    product_id,
+    color_id,
+    quantity,
+  });
+  return res.data;
+};
+
+
+
