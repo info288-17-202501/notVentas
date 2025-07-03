@@ -7,22 +7,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getStores, createStore } from '@/api/store';
 
-// Carga dinámica de react-leaflet para que sólo corra en cliente
-const MapContainer = dynamic(
-  () => import('react-leaflet').then(mod => mod.MapContainer),
-  { ssr: false }
-);
-const TileLayer = dynamic(
-  () => import('react-leaflet').then(mod => mod.TileLayer),
-  { ssr: false }
-);
-const Marker = dynamic(
-  () => import('react-leaflet').then(mod => mod.Marker),
-  { ssr: false }
-);
-import { useMap } from 'react-leaflet';
-
-// Fix iconos Leaflet
+// Leaflet icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -33,31 +18,34 @@ L.Icon.Default.mergeOptions({
     'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
 });
 
-// Hook para recentrar mapa
+// Dinámicos para ssr: false
+const MapContainer = dynamic(
+  () => import('react-leaflet').then(m => m.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic(
+  () => import('react-leaflet').then(m => m.TileLayer),
+  { ssr: false }
+);
+const Marker = dynamic(
+  () => import('react-leaflet').then(m => m.Marker),
+  { ssr: false }
+);
+const useMap = dynamic(
+  () => import('react-leaflet').then(m => m.useMap),
+  { ssr: false }
+);
+
 function RecenterMap({ center }) {
   const map = useMap();
   map.setView(center, map.getZoom());
   return null;
 }
 
-// Lista de regiones de Chile
 const regionesChile = [
-  'Arica y Parinacota',
-  'Tarapacá',
-  'Antofagasta',
-  'Atacama',
-  'Coquimbo',
-  'Valparaíso',
-  'Metropolitana',
-  'O’Higgins',
-  'Maule',
-  'Ñuble',
-  'Bío Bío',
-  'Araucanía',
-  'Los Ríos',
-  'Los Lagos',
-  'Aysén',
-  'Magallanes y la Antártica'
+  'Arica y Parinacota','Tarapacá','Antofagasta','Atacama','Coquimbo',
+  'Valparaíso','Metropolitana','O’Higgins','Maule','Ñuble','Bío Bío',
+  'Araucanía','Los Ríos','Los Lagos','Aysén','Magallanes y la Antártica'
 ];
 
 export default function StoresPage() {
@@ -75,20 +63,24 @@ export default function StoresPage() {
     coord_longitude: -73.2459
   });
 
-  // Carga inicial de tiendas
+  // 1) Carga inicial
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (!user.company_id) return setLoading(false);
-
+    if (!user.company_id) {
+      setLoading(false);
+      return;
+    }
     getStores(user.company_id)
       .then(data => {
-        setStores(data.stores || []);
+        // detectamos si viene como array o dentro de .stores
+        const list = Array.isArray(data) ? data : data.stores;
+        setStores(list || []);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  // Geocoding con Nominatim cada vez que cambian calle/ciudad/región
+  // 2) geocoding simple al salir del campo
   const geocode = useCallback(async () => {
     const { address_street, address_city, address_state } = form;
     if (!address_street || !address_city || !address_state) return;
@@ -99,13 +91,12 @@ export default function StoresPage() {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${q}`
       );
-      const results = await res.json();
-      if (results.length > 0) {
-        const { lat, lon } = results[0];
+      const [first] = await res.json();
+      if (first) {
         setForm(f => ({
           ...f,
-          coord_latitude:  parseFloat(lat),
-          coord_longitude: parseFloat(lon)
+          coord_latitude:  parseFloat(first.lat),
+          coord_longitude: parseFloat(first.lon)
         }));
       }
     } catch (err) {
@@ -113,22 +104,20 @@ export default function StoresPage() {
     }
   }, [form.address_street, form.address_city, form.address_state]);
 
-  // Envía el formulario
+  // 3) envío del formulario
   const handleSubmit = async e => {
     e.preventDefault();
     setSaving(true);
-
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const payload = {
-        ...form,
-        company_id: user.company_id
-      };
-      // createStore devuelve directamente el JSON
-      const data = await createStore(payload);
-      // suponemos que el backend responde { store: { … } }
-      setStores(prev => [...prev, data.store]);
+      const payload = { ...form, company_id: user.company_id };
+      // createStore con axios devuelve response.data
+      const resp = await createStore(payload);
+      // si tu backend envía { store: {...} } lo cogemos, si envía {...} directo lo cogemos
+      const nuevo = resp.store ?? resp;
+      setStores(prev => [...prev, nuevo]);
       setOpenModal(false);
+      // reset
       setForm({
         name: '',
         address_street: '',
@@ -139,7 +128,7 @@ export default function StoresPage() {
       });
     } catch (err) {
       console.error(err);
-      alert('Error creando tienda: ' + (err.message || err));
+      alert('Error creando tienda: ' + err);
     } finally {
       setSaving(false);
     }
@@ -191,19 +180,19 @@ export default function StoresPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {[
-                { label: 'Nombre',       field: 'name',           type:'text' },
-                { label: 'Dirección',    field: 'address_street', type:'text' },
-                { label: 'Ciudad',       field: 'address_city',   type:'text' },
-              ].map(({label,field,type}) => (
+                { label: 'Nombre',    field: 'name' },
+                { label: 'Dirección', field: 'address_street' },
+                { label: 'Ciudad',    field: 'address_city' },
+              ].map(({label,field}) => (
                 <div key={field}>
                   <label className="block mb-1 text-gray-700">{label}</label>
                   <input
-                    type={type}
+                    type="text"
                     required
                     value={form[field]}
-                    onChange={e => setForm(f => ({
-                      ...f, [field]: e.target.value
-                    }))}
+                    onChange={e =>
+                      setForm(f => ({ ...f, [field]: e.target.value }))
+                    }
                     onBlur={geocode}
                     className="w-full border rounded px-3 py-2 text-gray-900"
                   />
@@ -217,15 +206,17 @@ export default function StoresPage() {
                 <select
                   required
                   value={form.address_state}
-                  onChange={e => setForm(f => ({
-                    ...f, address_state: e.target.value
-                  }))}
+                  onChange={e =>
+                    setForm(f => ({ ...f, address_state: e.target.value }))
+                  }
                   onBlur={geocode}
                   className="w-full border rounded px-3 py-2 text-gray-900"
                 >
                   <option value="">Seleccione una región</option>
                   {regionesChile.map(r => (
-                    <option key={r} value={r}>{r}</option>
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -241,17 +232,18 @@ export default function StoresPage() {
                     style={{ height: '100%', width: '100%' }}
                     whenCreated={map => {
                       map.on('click', e => {
-                        const { lat, lng } = e.latlng;
                         setForm(f => ({
                           ...f,
-                          coord_latitude:  lat,
-                          coord_longitude: lng
+                          coord_latitude:  e.latlng.lat,
+                          coord_longitude: e.latlng.lng
                         }));
                       });
                     }}
                   >
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                    <RecenterMap center={[form.coord_latitude, form.coord_longitude]} />
+                    <RecenterMap
+                      center={[form.coord_latitude, form.coord_longitude]}
+                    />
                     <Marker
                       position={[form.coord_latitude, form.coord_longitude]}
                       draggable
@@ -263,7 +255,7 @@ export default function StoresPage() {
                             coord_latitude:  ll.lat,
                             coord_longitude: ll.lng
                           }));
-                        },
+                        }
                       }}
                     />
                   </MapContainer>
