@@ -7,24 +7,26 @@ import { useCart } from '@/context/CartContext';
 import { updateStock } from '@/api/product';
 
 export default function ProductCardFinal({ data }) {
-  // destructuramos lo que viene de la API
-  const { product, quantity: initialStock, color, store_id } = data;
+  // 1) Desestructuramos solo lo que sí existe
+  const { product, quantity: initialStock, color_id, store_id } = data;
+
+  // 2) Sacamos el hex del color (o fallback)
+  const colorCode = data.color_code || data.color?.code || '#000000';
+
   const [stock, setStock] = useState(initialStock);
   const [qty, setQty]     = useState(1);
   const { addToCart }     = useCart();
   const cardRef           = useRef();
 
-  const colorCode = color?.code || '#000';
-
-  // Aumentar stock en +1
+  // ———> Función para subir el stock via PATCH /storeproducts
   const handleIncreaseStock = async (e) => {
     e.stopPropagation();
     try {
       await updateStock({
         store_id,
         product_id: product.id,
-        color_id:   color.id,
-        quantity:   1,            // sumamos 1 al stock
+        color_id,
+        quantity: 1, // sumamos 1
       });
       setStock(s => s + 1);
     } catch (err) {
@@ -33,7 +35,7 @@ export default function ProductCardFinal({ data }) {
     }
   };
 
-  // Añadir al carrito con la cantidad seleccionada
+  // ———> Agregar al carrito respetando la cantidad
   const handleAddToCart = (e) => {
     e.stopPropagation();
     addToCart({
@@ -50,7 +52,7 @@ export default function ProductCardFinal({ data }) {
       ref={cardRef}
       className="relative bg-white rounded-xl shadow p-4 flex flex-col"
     >
-      {/* + Stock */}
+      {/* BOTÓN + PARA AUMENTAR STOCK */}
       <button
         onClick={handleIncreaseStock}
         className="absolute top-2 right-2 bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
@@ -59,21 +61,22 @@ export default function ProductCardFinal({ data }) {
         +
       </button>
 
-      {/* Imagen */}
-      <div className="relative w-full h-48 bg-gray-100 rounded">
+      {/* IMAGEN */}
+      <div className="relative w-full h-48 bg-gray-100 rounded overflow-hidden">
         <Image
-          src={product.images?.[0]?.url || '/placeholder.png'}
+          src={product.images?.[0]?.url || '/images/placeholder.png'}
           alt={product.name}
           fill
-          className="object-cover rounded"
+          priority
+          className="object-cover"
         />
       </div>
 
-      {/* Nombre y descripción */}
+      {/* NOMBRE + DESCRIPCIÓN */}
       <h3 className="mt-2 font-semibold text-gray-800">{product.name}</h3>
       <p className="text-gray-600 text-sm mb-2">{product.description}</p>
 
-      {/* Precio y stock */}
+      {/* PRECIO Y STOCK */}
       <div className="flex justify-between items-center mb-4">
         <span className="text-orange-600 font-bold">
           ${new Intl.NumberFormat('es-CL').format(product.price)}
@@ -81,7 +84,7 @@ export default function ProductCardFinal({ data }) {
         <span className="text-gray-500 text-sm">Stock: {stock}</span>
       </div>
 
-      {/* Selector de cantidad */}
+      {/* SELECTOR DE CANTIDAD */}
       <div className="flex items-center gap-2 mb-4">
         <button
           onClick={() => setQty(q => Math.max(1, q - 1))}
@@ -100,7 +103,7 @@ export default function ProductCardFinal({ data }) {
         </button>
       </div>
 
-      {/* Botón Agregar al carrito */}
+      {/* BOTÓN AGREGAR AL CARRITO */}
       <button
         onClick={handleAddToCart}
         disabled={stock === 0}
