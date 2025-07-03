@@ -1,5 +1,5 @@
 import express from 'express';
-import {getSales, createSale, updateSale, deleteSale} from '../controllers/sales.function.js';
+import {getSales, createSale, updateSale, deleteSale, getSaleById} from '../controllers/sales.function.js';
 
 const router = express.Router();
 
@@ -39,5 +39,16 @@ router.delete('/', async (req, res) => {
     }
 });
 
+router.get('/:id', async (req, res) => {
+    try {
+        const sale = await getSaleById(req.params.id);
+        if (!sale) {
+            return res.status(404).json({ error: 'Sale not found' });
+        }
+        res.status(200).json(sale);
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching sale by id' });
+    }
+});
 
 export default router;

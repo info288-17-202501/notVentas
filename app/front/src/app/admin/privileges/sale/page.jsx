@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Modal from "../../../../components/ui/modal";
+import { getSales } from "../../../../api/sale";
+import { getSaleItems } from "../../../../api/saleItem"; // Importar la función para crear una venta
 
 const SaleList = () => {
   const [sales, setSales] = useState([]);
@@ -8,21 +10,32 @@ const SaleList = () => {
   const [saleItems, setSaleItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(false);
 
+ 
+  
   useEffect(() => {
-    fetch("http://localhost:3000/api/sale")
-      .then((res) => res.json())
-      .then(setSales)
-      .catch(() => setSales([]));
+      const fetchSale = async () => {
+          try {
+              const saleData = await getSales();
+              setSales(Array.isArray(saleData) ? saleData : []);
+          } catch (error) {
+              setSales([]);
+              console.error('Error al obtener productos:', error);
+          } finally {
+              setLoading(false);
+          }
+      };
+      fetchSale();
   }, []);
 
   const handleShowDetails = async (sale) => {
     setSelectedSale(sale);
     setLoadingItems(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/saleitem/${sale.id}`);
-      const data = await res.json();
-      console.log(" informacion de la venta llegada de la API: ", data);
-      setSaleItems(Array.isArray(data.items) ? data.items : []);
+      // Usar la función getSaleItem importada para obtener los items de la venta
+      const data = await getSaleItems(sale.id);
+      console.log("Sale items fetched:", data);
+      setSaleItems(Array.isArray(data) ? data : []);
+      console.log("Sale items:", saleItems);
     } catch {
       setSaleItems([]);
     }

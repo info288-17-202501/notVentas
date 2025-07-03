@@ -2,27 +2,27 @@ import prisma  from '../db/client.js'; // Import the Prisma client instance
 
 // Function to create a new category
 export async function createCategory({name}) {
-    
-    try {
-        const existingCategory = await Validation.checkCategoryExistence(name);
-        console.log("existe la categoria? ",existingCategory)
-        if (existingCategory) return existingCategory;
+    console.log("creando categoria: ",name)
+    if (!name) {
+        throw new Error('Category name is required');
+    }
+    const existingCategory = await Validation.checkCategoryExistence(name);
+    console.log("existe la categoria? ",existingCategory)
+    if (!existingCategory) {
         const newCategory = await prisma.category.create({data: {name}});
         return newCategory;
-        
-    } catch (error) {
-        throw new Error(`Error creating category: ${error.message}`);
     }
 }
 
 // Function to get categories
 export async function getCategories() {
-    try{
-        const categories = await prisma.category.findMany();
-        return categories;
-    }catch(error){
-        throw new Error('Error connecting to the database')
+
+    const categories = await prisma.category.findMany();
+    if (!categories || categories.length === 0) {
+        throw new Error('No categories found');
     }
+    return categories;
+    
 }
 
 
@@ -32,22 +32,22 @@ export async function updateCategory({name, new_name}) {
         throw new Error('Category name is required');
     }
     await Validation.categoryMustExist(name)
-    try{
-        const data = {};
-        if (new_name) data.name = new_name;
-        
-        if (Object.keys(data).length === 0) {
-            throw new Error('No fields to update');
-        }
-
-        const updatedCategory = await prisma.category.update({
-            where: { name },
-            data
-        });
-        return updatedCategory;
-    }catch(error){
-        throw new Error(`Error updating category: ${error.message}`)
+    const data = {};
+    if (new_name) data.name = new_name;
+    
+    if (Object.keys(data).length === 0) {
+        throw new Error('No fields to update');
     }
+
+    const updatedCategory = await prisma.category.update({
+        where: { name },
+        data
+    });
+    if (!updatedCategory) {
+        throw new Error(`Error to update category`);
+    }
+    return updatedCategory;
+    
 }
 
 

@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+'use client';
+import React, { useEffect, useState } from "react";
+import { createCategory, getCategories } from "../../api/category";
+import { createBrand, getBrands } from "../../api/brand";
+import { getColors } from "../../api/color";
 
 const initialState = {
     name: "",
@@ -12,6 +16,67 @@ const initialState = {
 
 export default function FormNewProduct({ open, onClose, onCreate }) {
     const [form, setForm] = useState(initialState);
+    const [categories, setCategories] = useState([]);
+    const [brands, setBrands] = useState([]);
+    const [existingColors, setExistingColors] = useState([]);
+
+    useEffect(() => {
+        if (open) {
+            loadCategories();
+            loadBrands();
+            loadColors();
+        }
+    }, [open]);
+
+    const loadCategories = async () => {
+        try {
+            const res = await getCategories();
+            setCategories(res.categories || res); // Por compatibilidad
+        } catch (e) {
+            console.error("Error al cargar categorías", e);
+        }
+    };
+
+    const loadBrands = async () => {
+        try {
+            const res = await getBrands();
+             console.log("Marcas obtenidas:", res);
+            setBrands(res.brands || res); // Por compatibilidad
+        } catch (e) {
+            console.error("Error al cargar marcas", e);
+        }
+    };
+
+    const loadColors = async () => {
+        try {
+            const res = await getColors();
+            setExistingColors(res.colors || res); // compatible con ambas respuestas
+        } catch (e) {
+            console.error("Error al cargar colores", e);
+        }
+    };
+
+    const handleAddCategory = async () => {
+        const name = prompt("Nombre de la nueva categoría:");
+        if (!name) return;
+        try {
+            await createCategory({ name });
+            await loadCategories();
+        } catch (e) {
+            alert("Error al crear categoría: " + e.message);
+        }
+    };
+
+    const handleAddBrand = async () => {
+        const name = prompt("Nombre de la nueva marca:");
+        if (!name) return;
+        try {
+            await createBrand({ name });
+            await loadBrands();
+        } catch (e) {
+            alert("Error al crear marca: " + e.message);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -45,10 +110,23 @@ export default function FormNewProduct({ open, onClose, onCreate }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onCreate(form);
-        setForm(initialState);
-        onClose();
+        const selectedCategory = categories.find(c => c.id == form.category_id);
+        const selectedBrand = brands.find(b => b.id == form.brand_id);
+        const productData = {
+            name: form.name,
+            description: form.description,
+            price: Number(form.price), // asegúrate de que sea número
+            is_active: form.is_active,
+            category: { name: selectedCategory?.name },
+            brand: { name: selectedBrand?.name },
+            colors: form.colors
     };
+
+    onCreate(productData);
+    setForm(initialState);
+    onClose();
+    };
+
 
     if (!open) return null;
 
@@ -99,63 +177,120 @@ export default function FormNewProduct({ open, onClose, onCreate }) {
                             className="ml-2"
                         />
                     </label>
-                    <label className="block mb-2">
-                        ID Categoría:
-                        <input
-                            name="category_id"
-                            type="number"
-                            value={form.category_id}
-                            onChange={handleChange}
-                            required
-                            min={1}
-                            className="block w-full border rounded px-2 py-1 mt-1"
-                        />
-                    </label>
-                    <label className="block mb-2">
-                        ID Marca:
-                        <input
-                            name="brand_id"
-                            type="number"
-                            value={form.brand_id}
-                            onChange={handleChange}
-                            required
-                            min={1}
-                            className="block w-full border rounded px-2 py-1 mt-1"
-                        />
-                    </label>
+
+                    <div className="mb-2">
+                        <label>Categoría:</label>
+                        <div className="flex gap-2 items-center">
+                            <select
+                                name="category_id"
+                                value={form.category_id}
+                                onChange={handleChange}
+                                required
+                                className="block w-full border rounded px-2 py-1 mt-1"
+                            >
+                                <option value="">Seleccione una categoría</option>
+                                {categories.map((cat) => (
+                                    <option key={cat.id} value={cat.id}>
+                                        {cat.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <button
+                                type="button"
+                                onClick={handleAddCategory}
+                                className="text-sm text-blue-600 hover:underline"
+                            >
+                                + Nueva
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="mb-2">
+                        <label>Marca:</label>
+                        <div className="flex gap-2 items-center">
+                            <select
+                                name="brand_id"
+                                value={form.brand_id}
+                                onChange={handleChange}
+                                required
+                                className="block w-full border rounded px-2 py-1 mt-1"
+                            >
+                                <option value="">Seleccione una marca</option>
+                                {brands.map((brand) => (
+                                    <option key={brand.id} value={brand.id}>
+                                        {brand.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <button
+                                type="button"
+                                onClick={handleAddBrand}
+                                className="text-sm text-blue-600 hover:underline"
+                            >
+                                + Nueva
+                            </button>
+                        </div>
+                    </div>
+
                     <div className="mb-4">
                         <label className="block font-medium mb-1">Colores:</label>
                         {form.colors.map((color, idx) => (
-                            <div key={idx} className="flex items-center mb-2">
-                                <input
-                                    placeholder="Nombre"
-                                    value={color.name}
-                                    onChange={(e) =>
-                                        handleColorChange(idx, "name", e.target.value)
-                                    }
-                                    required
-                                    className="border rounded px-2 py-1 mr-2"
-                                />
-                                <input
-                                    type="color"
-                                    value={color.code}
-                                    onChange={(e) =>
-                                        handleColorChange(idx, "code", e.target.value)
-                                    }
-                                    required
-                                    className="mr-2"
-                                />
+                            <div key={idx} className="flex items-center mb-2 gap-2 flex-wrap">
+                            <select
+                                value={color.name}
+                                onChange={(e) => {
+                                    const selectedName = e.target.value;
+                                    const found = existingColors.find(c => c.name === selectedName);
+                                    handleColorChange(idx, "name", selectedName);
+                                    handleColorChange(idx, "code", found?.code || "");
+                                }}
+                                className="border rounded px-2 py-1"
+                            >
+                                    <option value="">Nuevo color</option>
+                                    {existingColors.map((c) => (
+                                        <option key={c.id} value={c.name}>
+                                            {c.name}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                {/* Input solo visible si el color no está en la lista */}
+                                {!existingColors.some(c => c.name === color.name) && (
+                                    <>
+                                        <input
+                                            placeholder="Nombre"
+                                            value={color.name}
+                                            onChange={(e) =>
+                                                handleColorChange(idx, "name", e.target.value)
+                                            }
+                                            required
+                                            className="border rounded px-2 py-1"
+                                        />
+                                        <input
+                                            type="color"
+                                            value={color.code}
+                                            onChange={(e) => {
+                                                const selectedCode = e.target.value;
+                                                handleColorChange(idx, "code", selectedCode);
+                                            }}
+                                            required
+                                            className="border"
+                                        />
+                                    </>
+                                )}
+
                                 {form.colors.length > 1 && (
                                     <button
                                         type="button"
                                         onClick={() => removeColor(idx)}
-                                        className="ml-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                        className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                                     >
                                         Quitar
                                     </button>
                                 )}
                             </div>
                         ))}
+
                         <button
                             type="button"
                             onClick={addColor}
@@ -164,6 +299,7 @@ export default function FormNewProduct({ open, onClose, onCreate }) {
                             + Agregar Color
                         </button>
                     </div>
+
                     <div className="flex justify-end">
                         <button
                             type="button"

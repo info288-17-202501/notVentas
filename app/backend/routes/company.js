@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { createCompany, getCompanies, getCompanyById, updateCompany, deleteCompany } from '../controllers/company.function.js';
-
+import { createUser } from '../controllers/user.function.js';
 const router = Router();
 
 
@@ -14,12 +14,31 @@ router.get('/', async (_, res) => {
 });
 
 
+//route to register a new company
+// This route allows the creation of a new company
+// It expects the company data in the request body
+// The data should include fields like name, rut, address, etc.
+
+
 // Route to create a new company
-router.post('/', async (req, res) => {
+router.post('/register', async (req, res) => {
     try {
         const companyData = req.body;
         const newCompany = await createCompany(companyData);
-        res.status(201).json(newCompany);
+        if (newCompany) {
+            const userData = {
+                email: companyData.user.email,
+                name: companyData.user.name,
+                rut: companyData.user.rut,
+                password: companyData.user.password,
+                role: 'admin', 
+                company_id: newCompany.id,
+            };
+            const newUser = await createUser(userData);
+            res.status(201).json(newCompany, newUser);
+        }
+
+        
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

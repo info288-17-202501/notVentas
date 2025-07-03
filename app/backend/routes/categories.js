@@ -7,7 +7,9 @@ const router = express.Router();
 // Crear categoria
 router.post('/', async (req, res) => {
     try{
+        console.log("Nueva categoria: ", req.body)
         const newCategory = await createCategory(req.body);
+        
         res.status(201).json({message: 'Category created successfull',newCategory});
     }catch (error){
         res.status(500).json({ error: error.message || 'Error to create a category' });
