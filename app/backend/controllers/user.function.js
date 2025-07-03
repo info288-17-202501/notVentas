@@ -51,15 +51,15 @@ export async function login({ email, password }) {
     return publicUser;
 }
 
-export async function updateUser({ email, username, password, role }) {
+export async function updateUser({ email, name, password, role, store_id, rut }) {
     if (!email) {
         throw new Error('Email is required to update user');
     }
 
     const updateData = {};
 
-    if (username) {
-        updateData.name = username;
+    if (name) {
+        updateData.name = name;
     }
 
     if (password) {
@@ -71,9 +71,17 @@ export async function updateUser({ email, username, password, role }) {
         updateData.role = role;
     }
 
+    if (store_id !== undefined) {
+        updateData.store_id = store_id;
+    }
+
+    if (rut) {
+        updateData.rut = rut;
+    }
+
     const updatedUser = await prisma.user.update({
         where: { email },
-        data: updateData
+        data: updateData,
     });
 
     const { password: _, ...publicUser } = updatedUser;

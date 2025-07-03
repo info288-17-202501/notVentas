@@ -50,10 +50,9 @@ export default function UsersPage() {
       alert("Error: " + error.message);
     }
   };
-
   const handleEditUser = async (userData) => {
     try {
-      const res = await fetch("http://localhost:3000/api/edit-user", {
+      const res = await fetch("http://localhost:3000/api/user", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
@@ -64,6 +63,19 @@ export default function UsersPage() {
       alert("Error: " + error.message);
     }
   };
+  // const handleEditUser = async (userData) => {
+  //   try {
+  //     const res = await fetch("http://localhost:3000/api/user", {
+  //       method: "PUT",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(userData),
+  //     });
+  //     if (!res.ok) throw new Error("Error al editar el usuario");
+  //     await loadUsers();
+  //   } catch (error) {
+  //     alert("Error: " + error.message);
+  //   }
+  // };
 
   return (
     <div className="p-8 bg-gray-900 min-h-screen">

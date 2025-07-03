@@ -20,6 +20,7 @@ model Company {
 
   users   User[]
   stores  Store[]
+  companyProducts CompanyProduct[]
 }
 
 model User {
@@ -103,9 +104,11 @@ model Product {
   storeProducts StoreProduct[]
   images        Image[]
   colors        ProductColor[] // ← aquí
+  companyProducts CompanyProduct[] // relation to CompanyProduct
 
   // Ya no hay color_id ni color directo
 }
+
 
 
 model ProductColor {
@@ -123,6 +126,16 @@ model Image {
   url       String
   product   Product @relation(fields: [product_id], references: [id])
   product_id Int
+}
+
+model CompanyProduct {
+  company_id Int
+  product_id Int
+
+  company   Company @relation(fields: [company_id], references: [id])
+  product   Product @relation(fields: [product_id], references: [id])
+
+  @@id([company_id, product_id])
 }
 
 model StoreProduct {
