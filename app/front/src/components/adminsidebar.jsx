@@ -14,7 +14,7 @@ export default function AdminSidebar() {
     { href: '/admin/privileges/products',  label: 'PRODUCTOS' },
     { href: '/admin/privileges/sale',      label: 'VENTAS' },
     { href: '/admin/privileges/stores',    label: 'VENDEDORES' }, // mantiene tu ruta actual
-    { href: '/admin/privileges/tiendas',   label: 'TIENDAS'   }, // nueva ruta de ubicaciones
+    { href: '/admin/privileges/store',   label: 'TIENDAS'   }, // nueva ruta de ubicaciones
     { href: '/admin/privileges/stadistics',label: 'ESTADÍSTICAS' },
     { href: '/admin/privileges/maps',      label: 'MAPAS' },
   ];
