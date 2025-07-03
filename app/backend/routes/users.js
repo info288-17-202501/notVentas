@@ -1,5 +1,7 @@
 import express from 'express';
-import { deleteUser, getUsers,updateUser} from '../controllers/user.function.js'
+import { deleteUser, getUsers,updateUser, getUsersByCompany} from '../controllers/user.function.js'
+
+
 
 const router = express.Router();
 
@@ -13,6 +15,17 @@ router.get('/', async (req, res) =>{
     }
 });
 
+router.get('/:companyId', async (req, res) => {
+
+    try {
+        const companyId = parseInt(req.params.companyId);
+        console.log(companyId);
+        const users = await getUsersByCompany(companyId);
+        res.status(200).json({users});
+    } catch (error) {
+        res.status(500).json({error: error.message});
+    }
+});
 
 // Editar usuario (password, username)
 router.put('/', async (req, res) => {

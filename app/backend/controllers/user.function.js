@@ -27,6 +27,17 @@ export async function getUsers() {
     //falta quitar de la lista los usuarios que fueron "borrados"
 }
 
+export async function getUsersByCompany(companyId) {
+    console.log('Company ID:', companyId);
+    if (!companyId) {
+        throw new Error('Company ID is required');
+    }
+    const users = await prisma.user.findMany({
+        where: { company_id: companyId, is_active: true },
+    });
+    return users.map(({ password, ...user }) => user); // quitar contraseña de usuarios
+}
+
 
 export async function login({ email, password }) {
     Validation.email(email);

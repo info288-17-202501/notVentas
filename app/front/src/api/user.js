@@ -5,8 +5,8 @@ export const createUser = async (data) => {
     return response.data;
 };
 
-export const getUsers = async () => {
-    const response = await axios.get('/register');
+export const getUsers = async (companyId) => {
+    const response = await axios.get(`/user/${companyId}`);
     return response.data.users;
 };
 

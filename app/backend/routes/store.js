@@ -1,7 +1,7 @@
 import express from 'express';
 
-import { getStores, createStore, updateStore, deleteStore } from '../controllers/store.function.js';
-import { getStoresByCompany } from '../controllers/store.function.js';
+import { getStores, createStore, updateStore, deleteStore, getStoresByCompany } from '../controllers/store.function.js';
+
 
 const router = express.Router();
 

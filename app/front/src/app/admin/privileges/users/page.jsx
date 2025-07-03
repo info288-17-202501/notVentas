@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import FormNewUser from "../../../../components/ui/FormNewUser";
 import { getStores } from "../../../../api/store";
+import { getUsers } from "../../../../api/user";
+import { get } from "http";
 
 export const dynamic = "force-dynamic";
 
@@ -13,15 +15,25 @@ export default function UsersPage() {
   const [companyId, setCompanyId] = useState(null);
 
   const loadStores = async () => {
-    const result = await getStores();
+    const companyId = JSON.parse(localStorage.getItem('user'))?.company_id;
+    if (!companyId) {
+      console.error("No company ID found in localStorage");
+      return;
+    }
+    const result = await getStores(companyId);
     setStores(result);
   };
 
   const loadUsers = async () => {
-    const res = await fetch("http://localhost:3000/api/user", { cache: "no-store" });
+    const companyId = JSON.parse(localStorage.getItem('user'))?.company_id;
+    if (!companyId) {
+      console.error("No company ID found in localStorage");
+      return;
+    }
+    const res = await getUsers(companyId);
+    setUsers(res);
     if (!res.ok) return;
     const data = await res.json();
-    setUsers(data);
   };
 
   useEffect(() => {
@@ -33,8 +45,9 @@ export default function UsersPage() {
       }
     }
 
-    loadUsers();
     loadStores();
+    loadUsers();
+    
   }, []);
 
   const handleCreateUser = async (userData) => {
@@ -63,19 +76,6 @@ export default function UsersPage() {
       alert("Error: " + error.message);
     }
   };
-  // const handleEditUser = async (userData) => {
-  //   try {
-  //     const res = await fetch("http://localhost:3000/api/user", {
-  //       method: "PUT",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(userData),
-  //     });
-  //     if (!res.ok) throw new Error("Error al editar el usuario");
-  //     await loadUsers();
-  //   } catch (error) {
-  //     alert("Error: " + error.message);
-  //   }
-  // };
 
   return (
     <div className="p-8 bg-gray-900 min-h-screen">
