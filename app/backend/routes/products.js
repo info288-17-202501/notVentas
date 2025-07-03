@@ -1,5 +1,5 @@
 import express from 'express'
-import { createProduct, getProducts, updateProduct, deleteProduct } from '../controllers/product.function.js'
+import { createProduct, getProducts, updateProduct, deleteProduct, getProductsByCompany } from '../controllers/product.function.js'
 import { authorizeRoles } from '../middleware/auth.js';
 
 
@@ -26,9 +26,11 @@ router.put('/', async (req, res) => {
 })
 
 // Obtener productos
-router.get('/', async(req, res) => {
+router.get('/:id', async(req, res) => {
     try{
-        const products = await getProducts();
+        const compantId = parseInt(req.params.id);
+
+        const products = await getProductsByCompany(compantId);
         res.status(200).json({products});
     }catch(error){
         res.status(500).json({ error: error.message || 'Error to get products'});

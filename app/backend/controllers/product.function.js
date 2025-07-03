@@ -16,8 +16,6 @@ export async function createProduct({
     company_id,
     }) {
     
-    console.log('category', category);
-    console.log('brand', brand);
     const valCategory = await Validation.category(category.name);
     const valBrand = await Validation.brand(brand.name);
     
@@ -36,10 +34,7 @@ export async function createProduct({
     }));
 
     // 3. Crear el producto con las relaciones a múltiples colores
-    console.log('Creando producto con los siguientes datos:', {
-      name
-      , description, price, valCategory, valBrand, colors, company_id
-    });
+
     const newProduct = await prisma.product.create({
       data: {
         name,
@@ -169,6 +164,46 @@ export async function getProducts() {
     throw new Error('Error retrieving products from the database');
   }
 }
+
+export async function getProductsByCompany(company_id) {
+    if (!company_id) {
+        throw new Error("Company ID is required");
+    }
+    const products = await prisma.companyProduct.findMany({
+        where: { company_id },
+        include: {
+            product: {
+                include: {
+                    brand: {
+                        select: { name: true }
+                    },
+                    category: {
+                        select: { name: true }
+                    },
+                    colors: {
+                        include: {
+                            color: {
+                                select: {
+                                    name: true,
+                                    code: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+    if (!products || products.length === 0) {
+        throw new Error('No products found for this company');
+    }
+
+    return products.map(cp => ({
+        ...cp.product,
+        category: cp.product.category?.name,
+        colors: cp.product.colors.map(pc => pc.color) // extrae solo el color de cada ProductColor
+    }));
+} 
 
 
 // funcion para eliminar un producto

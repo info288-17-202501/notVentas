@@ -42,7 +42,8 @@ const ProductList = () => {
     useEffect(() => {
     const fetchProducts = async () => {
         try {
-            const productsData = await getProducts();
+            const companyId = JSON.parse(localStorage.getItem('user'))?.company_id;
+            const productsData = await getProducts(companyId);
             setProducts(Array.isArray(productsData) ? productsData : []);
         } catch (error) {
             setProducts([]);
