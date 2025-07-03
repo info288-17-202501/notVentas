@@ -1,25 +1,76 @@
-"use client";
+'use client';
 
-import { useCart } from "@/context/CartContext";
-import { X } from "lucide-react";
-import { useState } from "react";
-import AlertDialog from "./AlertDialog";
+import { useCart } from '@/context/CartContext';
+import { X } from 'lucide-react';
+import { useState } from 'react';
+import AlertDialog from './AlertDialog';
 
 export default function CartSidebar({ isOpen, onClose }) {
-  const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
+  const {
+    cartItems,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+  } = useCart();
+
   const [showSummary, setShowSummary] = useState(false);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [savingSale, setSavingSale] = useState(false);
 
+  // Calcula el total
   const total = cartItems.reduce(
     (acc, item) => acc + item.quantity * item.price,
     0
   );
 
+  // Envía la venta al backend y resetea el carrito
+  const handleConfirmSale = async () => {
+    setSavingSale(true);
+    try {
+      // Obtén user y store del localStorage
+      const u = JSON.parse(localStorage.getItem('user') || '{}');
+      const payload = {
+        total,
+        user_id: u.id,
+        store_id: u.store_id,
+        items: cartItems.map((item) => ({
+          product_id: item.id,
+          quantity: item.quantity,
+          price: item.price,
+          color: item.color,
+        })),
+      };
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/sale`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!res.ok) throw new Error('Error al crear la venta');
+      // Opcional: leer respuesta
+      // const json = await res.json();
+
+      alert('✅ Venta realizada con éxito');
+      clearCart();
+      setShowSummary(false);
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert('❌ Error al procesar la venta');
+    } finally {
+      setSavingSale(false);
+    }
+  };
+
   return (
     <div
       className={`fixed top-0 right-0 h-full w-80 bg-white text-gray-800 shadow-lg z-50 transform transition-transform duration-300 ${
-        isOpen ? "translate-x-0" : "translate-x-full"
+        isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}
     >
       <div className="p-4 flex justify-between items-center border-b">
@@ -54,7 +105,11 @@ export default function CartSidebar({ isOpen, onClose }) {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() =>
-                        updateQuantity(item.id, item.color, item.quantity - 1)
+                        updateQuantity(
+                          item.id,
+                          item.color,
+                          item.quantity - 1
+                        )
                       }
                       className="px-2 py-1 bg-gray-200 rounded text-sm"
                     >
@@ -63,7 +118,11 @@ export default function CartSidebar({ isOpen, onClose }) {
                     <span className="font-medium">{item.quantity}</span>
                     <button
                       onClick={() =>
-                        updateQuantity(item.id, item.color, item.quantity + 1)
+                        updateQuantity(
+                          item.id,
+                          item.color,
+                          item.quantity + 1
+                        )
                       }
                       className="px-2 py-1 bg-gray-200 rounded text-sm"
                     >
@@ -84,7 +143,7 @@ export default function CartSidebar({ isOpen, onClose }) {
       {cartItems.length > 0 && (
         <div className="p-4 border-t flex flex-col gap-2">
           <div className="text-right font-semibold text-orange-700">
-            Total: ${total.toLocaleString("es-CL")}
+            Total: ${total.toLocaleString('es-CL')}
           </div>
           <button
             onClick={() => setShowSummary(true)}
@@ -113,12 +172,15 @@ export default function CartSidebar({ isOpen, onClose }) {
                     <span>{item.name}</span>
                     <span>
                       $
-                      {(item.price * item.quantity).toLocaleString("es-CL")}
+                      {(item.price * item.quantity).toLocaleString(
+                        'es-CL'
+                      )}
                     </span>
                   </div>
                   <div className="text-gray-600 flex justify-between text-xs">
                     <span>
-                      {item.quantity} x ${item.price.toLocaleString("es-CL")}
+                      {item.quantity} x $
+                      {item.price.toLocaleString('es-CL')}
                     </span>
                     <span>Color: {item.color}</span>
                   </div>
@@ -126,17 +188,23 @@ export default function CartSidebar({ isOpen, onClose }) {
               ))}
             </ul>
             <div className="text-right font-semibold text-lg mb-4">
-              Total: ${total.toLocaleString("es-CL")}
+              Total: ${total.toLocaleString('es-CL')}
             </div>
-            <button
-              onClick={() => {
-                setShowSummary(false);
-                onClose();
-              }}
-              className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 w-full"
-            >
-              Confirmar y cerrar
-            </button>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowSummary(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmSale}
+                disabled={savingSale}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+              >
+                {savingSale ? 'Guardando…' : 'Confirmar venta'}
+              </button>
+            </div>
           </div>
         </div>
       )}
