@@ -4,15 +4,6 @@ import { createUser } from '../controllers/user.function.js';
 const router = Router();
 
 
-router.get('/', async (_, res) => {
-    try {
-        const companies = await getCompanies();
-        res.status(200).json(companies);
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching companies' });
-    }
-});
-
 
 // Route to create a new company
 router.post('/register', async (req, res) => {
@@ -41,8 +32,8 @@ router.post('/register', async (req, res) => {
 // Route to get a company by ID
 router.get('/:id', async (req, res) => {
     try {
-        const companyId = parseInt(req.params.id, 10);
-        const company = await getCompanyById({companyId});
+        const companyId = parseInt(req.params.id);
+        const company = await getCompanyById(companyId);
         if (!company) {
             return res.status(404).json({ error: 'Company not found' });
         }
