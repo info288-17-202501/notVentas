@@ -194,8 +194,8 @@ export async function getProductsByCompany(company_id) {
             }
         }
     });
-    if (!products || products.length === 0) {
-        throw new Error('No products found for this company');
+    if (!products) {
+        throw new Error('Error retrieving products for the company');
     }
 
     return products.map(cp => ({

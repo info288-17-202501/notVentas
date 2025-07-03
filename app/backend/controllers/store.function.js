@@ -23,6 +23,20 @@ export async function getStores() {
     return stores;
 }
 
+export async function getStoresByCompany(company_id) {
+    if (!company_id) {
+        throw new Error('Company ID is required to get stores');
+    }
+    const stores = await prisma.store.findMany({
+        where: { company_id },
+        orderBy: { name: 'asc' }
+    });
+    if (!stores) {
+        throw new Error('Error fetching stores for the company');
+    }
+    return stores;
+}
+
 export async function getStoreById(id) {
     StoreValidation.validateStoreId(id);
 
